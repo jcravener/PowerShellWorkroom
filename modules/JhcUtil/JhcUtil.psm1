@@ -3,7 +3,36 @@
 # Collection a variety of useful tools.
 # Date: April 24, 2018
 # Version: v 0.1
+# Date: March 10, 2020
+# Version: v 0.2
 #
+
+#---Simple long term history retriever 
+#
+function Get-JhcLongTermHistory
+{
+    begin
+    {
+        $histfile = $env:APPDATA + '\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'
+	}
+    process
+    {
+        if(Test-Path -Path $histfile)
+        {
+            $i = 0
+            Get-Content -Path $histfile |
+                
+                foreach-Object {$l = $_; $i++; "$i,$l" } |
+                    
+                    ConvertFrom-csv -header 'Id', 'CommandLine'
+        }
+        else
+        {
+            write-Error -Message "History file not found. $histfile"  
+		}
+	}
+    end{}
+}
 
 #---This cmdlet requires Excel is installed
 #
