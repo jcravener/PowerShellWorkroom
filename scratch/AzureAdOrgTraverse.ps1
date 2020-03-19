@@ -36,4 +36,5 @@ function orgtrav
 
 #Connect-AzureAD
 $mnn = $SearchString
-orgtrav($mnn)
+$l = orgtrav($mnn)
+($l.Count-1)..0 | %{ $i = $_; $l[$i] }
