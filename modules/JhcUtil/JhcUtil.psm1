@@ -5,6 +5,8 @@
 # Version: v 0.1
 # Date: March 10, 2020
 # Version: v 0.2
+# Date: March 18, 2020
+# Version: v 0.3
 #
 
 #---Simple long term history retriever 
@@ -21,10 +23,8 @@ function Get-JhcLongTermHistory
         {
             $i = 0
             Get-Content -Path $histfile |
-                
-                foreach-Object {$l = $_; $i++; "$i,$l" } |
-                    
-                    ConvertFrom-csv -header 'Id', 'CommandLine'
+            
+                ForEach-Object { $l = $_; $i++; New-Object -TypeName pscustomobject -Property @{'Id' = $i; 'CommandLine' = $l} }
         }
         else
         {
@@ -134,3 +134,4 @@ function Convert-JhcUtilXlsxToCsv
         $ex.Quit()
     }
 }
+
