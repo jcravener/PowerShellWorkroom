@@ -7,6 +7,7 @@ param (
     $SearchString
 )
 
+$ct = 0
 
 function orgtrav
 {
@@ -25,7 +26,9 @@ function orgtrav
 
     foreach( $o in Get-AzureADUser -SearchString $MailNickName | Get-AzureADUserDirectReport )
     {
-        Write-Progress -Activity "Searching AAD" -Status "User: $($o.Displayname)$jo    "
+        $ct++
+
+        Write-Progress -Activity "Looking up AAD user $($o.Displayname)" -Status "Searching $('.' * $a.count)"
         $m = Get-AzureADUserManager -ObjectId $o.ObjectId
         $a += $o | select-object -property @{name = 'Manager'; expression = {$m.DisplayName}}, Displayname, MailNickName, JobTitle, Department, PhysicalDeliveryOfficeName
         orgtrav($o.MailNickName)
