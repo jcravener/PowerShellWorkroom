@@ -348,3 +348,97 @@ function Convert-JhcUtilXlsxToCsv
     }
 }
 
+#--- returns encoding of the passed in file
+#
+function Show-JhcUtilFileEncoding
+{
+    param(
+            [Parameter(Mandatory, ParameterSetName="Path", Position = 0)]
+            [System.String[]]
+            $Path,
+
+            [Parameter(Mandatory, ParameterSetName="LiteralPath", ValueFromPipelineByPropertyName = $true)]
+            [Alias("PSPath")]
+            [System.String[]]
+            $LiteralPath,
+
+            [Parameter(Mandatory=$false)]
+            [switch]
+            $ExtendedOutput = $false
+        )
+
+    begin
+    {
+        $rc = 4
+        $tc = 4
+        $enc = 'Byte'
+
+        $header = 'Encoding', 'Path'
+        $Extheader = 'Encoding', 'Path', 'Byte0', 'Byte1', 'Byte2', 'Byte3'
+
+        $l = $null
+    }
+
+    process
+    {
+        $pathsToProcess = @()
+        
+        if($PSCmdlet.ParameterSetName  -eq "LiteralPath")
+        {
+            $pathsToProcess += Resolve-Path -LiteralPath $LiteralPath | Foreach-Object ProviderPath
+        }
+        
+        if($PSCmdlet.ParameterSetName -eq "Path")
+        {
+            $pathsToProcess += Resolve-Path $Path | Foreach-Object ProviderPath
+        }
+
+        foreach($filePath in $pathsToProcess)
+        {
+            if(Test-Path -LiteralPath $filePath -PathType Container)
+            {
+                continue
+            }
+        
+            [byte[]]$byte = get-content -Encoding $enc -ReadCount $rc -TotalCount $tc -Path $filePath
+            
+            $l = $null
+
+            if ( $byte[0] -eq 0xef -and $byte[1] -eq 0xbb -and $byte[2] -eq 0xbf )
+            {
+                $l = "UTF8"
+            }
+            elseif( $byte[0] -eq 0xff -and $byte[1] -eq 0xfe -and $byte[2] -eq 0 -and $byte[3] -eq 0 )
+            {
+                $l = "UTF32"
+            }
+            elseif( $byte[0] -eq 0xff -and $byte[1] -eq 0xfe )
+            {
+                $l = "Unicode"
+            }
+            elseif( $byte[0] -eq 0xfe -and $byte[1] -eq 0xff )
+            {
+                $l = "BigEndianUnicode"
+            }
+            else 
+            {
+                $l = "ASCII"
+            }
+            
+            $l += ",$($filePath)"
+
+            if($ExtendedOutput)
+            {
+                $l += ",$($byte[0]),$($byte[1]),$($byte[2]),$($byte[3])"
+                
+                $l | ConvertFrom-Csv -Header $Extheader
+            }
+            else
+            {
+                $l | ConvertFrom-Csv -Header $header
+            }
+        }
+    }
+
+    end{}
+}
