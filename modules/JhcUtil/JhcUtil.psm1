@@ -1,13 +1,6 @@
 #Requires -Version 3
 #
 # Collection a variety of useful tools.
-# Date: April 24, 2018
-# Version: v 0.1
-# Date: March 10, 2020
-# Version: v 0.2
-# Date: March 18, 2020
-# Version: v 0.3
-#
 
 #---searches down through a users org given a passed in AAD user serach string
 #
