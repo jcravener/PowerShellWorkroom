@@ -77,21 +77,26 @@ function Search-JhcUtilAadUserOrg
     end
     {
         $mgr = ''
+        $k = $null
 
         if($ext)
         {
             return $null
         }
         
+        $mgr = Get-AzureADUserManager -ObjectId $mnn.ObjectId
+        $k = $mnn | select-object -property @{name = 'Manager'; expression = {$mgr.DisplayName}}, @{name = 'ManagerMailNickName'; expression = {$mgr.MailNickName}}, Displayname, MailNickName, JobTitle, Department, PhysicalDeliveryOfficeName
+
         if($l.Count -gt 0)
         {
+            $l += $k
+            
             ($l.Count-1)..0 |
                 ForEach-Object{ $i = $_; $l[$i] }
         }
         else
         {
-            $mgr = Get-AzureADUserManager -ObjectId $mnn.ObjectId
-            $mnn | select-object -property @{name = 'Manager'; expression = {$mgr.DisplayName}}, @{name = 'ManagerMailNickName'; expression = {$mgr.MailNickName}}, Displayname, MailNickName, JobTitle, Department, PhysicalDeliveryOfficeName
+            $k
         }
     }
 }
@@ -438,6 +443,51 @@ function Show-JhcUtilFileEncoding
                 $l | ConvertFrom-Csv -Header $header
             }
         }
+    }
+
+    end{}
+}
+
+function Get-JhcUtilStockSp
+{
+    param
+    (
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)]
+        [System.Security.SecureString]
+        $apiKey,
+        [parameter(Mandatory = $true, Position = 1, ValueFromPipelineByPropertyName=$true)]
+        [System.String]
+        $symbol
+    )
+
+    begin
+    {
+        $aak = Unprotect-JhcUtilSecureString -SecureString $apiKey
+
+        #-- Ref: https://www.alphavantage.co/documentation/
+        #
+        $uri = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&datatype=csv&apikey=$($aak)&symbol"
+    }
+
+    process
+    {
+        $o = Invoke-RestMethod -Uri "$($uri)=$($symbol)" | ConvertFrom-Csv
+
+        if($o)
+        {
+            $o.open = [Double]$o.open
+            $o.high = [Double]$o.high
+            $o.low = [Double]$o.low
+            $o.price = [Double]$o.price
+            $o.volume = [System.Int32]$o.volume
+            $o.latestDay = [datetime]$o.latestDay
+            $o.previousClose = [Double]$o.previousClose
+            $o.change = [Double]$o.change
+            $o.changePercent = [Double]($o.changePercent -replace '\%', '')
+        }
+
+        $o
+
     }
 
     end{}
