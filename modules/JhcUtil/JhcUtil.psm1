@@ -4,6 +4,19 @@
 
 #---searches down through a users org given a passed in AAD user serach string
 #
+
+function Update-JhcUtilWindowTitle
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)]
+        [System.String]
+        $Title
+    )
+
+    $Host.UI.RawUI.WindowTitle = $Title
+}
+
 function Search-JhcUtilAadUserOrg
 {
     param (
