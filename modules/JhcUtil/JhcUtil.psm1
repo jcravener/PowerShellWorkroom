@@ -5,6 +5,30 @@
 #---searches down through a users org given a passed in AAD user serach string
 #
 
+function Invoke-JhcUtilScriptBlock
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)]
+        [System.String]
+        $ScriptBlockXml,
+        [Parameter(Mandatory=$false)]
+        [System.String[]]
+        $ArgumentList
+    )
+    
+    $sbstr = Import-Clixml -Path $ScriptBlockXml
+    $sb = [scriptblock]::Create($sbstr)
+
+    if($ArgumentList){
+        Invoke-Command -ScriptBlock $sb -ArgumentList $ArgumentList
+    }
+    else {
+        Invoke-Command -ScriptBlock $sb
+    }
+
+}
+
 function Update-JhcUtilWindowTitle
 {
     [CmdletBinding()]
