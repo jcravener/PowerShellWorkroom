@@ -261,6 +261,13 @@ function Unprotect-JhcUtilSecureString
 #
 function Get-JhcUtilLongTermHistory
 {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$false)]
+        [int]
+        $Last
+    )
+    
     begin
     {
         $histfile = $env:APPDATA + '\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'
@@ -270,9 +277,16 @@ function Get-JhcUtilLongTermHistory
         if(Test-Path -Path $histfile)
         {
             $i = 0
-            Get-Content -Path $histfile |
             
-                ForEach-Object { $l = $_; $i++; New-Object -TypeName pscustomobject -Property @{'Id' = $i; 'CommandLine' = $l} }
+            if($Last) {
+                Get-Content -Path $histfile |
+                    ForEach-Object { $l = $_; $i++; New-Object -TypeName pscustomobject -Property @{'Id' = $i; 'CommandLine' = $l} } |
+                        Select-Object -Last $Last
+            }
+            else {
+                Get-Content -Path $histfile |
+                    ForEach-Object { $l = $_; $i++; New-Object -TypeName pscustomobject -Property @{'Id' = $i; 'CommandLine' = $l} }               
+            }
         }
         else
         {
