@@ -262,6 +262,7 @@ function Unprotect-JhcUtilSecureString
 function Get-JhcUtilLongTermHistory
 {
     [CmdletBinding()]
+    [OutputType('JhcUtil.LongTermHistory')]
     param (
         [Parameter(Mandatory=$false)]
         [int]
