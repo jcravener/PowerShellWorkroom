@@ -1,0 +1,19 @@
+<Types>
+   <Type>
+       <Name>JhcUtil.LongTermHistory</Name>
+       <Members>
+           <ScriptProperty>
+               <Name>CommandLine</Name>
+               <GetScriptBlock>
+                  $this.CommandLine
+               </GetScriptBlock>
+           </ScriptProperty>
+           <ScriptProperty>
+               <Name>Id</Name>
+               <GetScriptBlock>
+                  $this.Id
+               </GetScriptBlock>
+           </ScriptProperty>
+       </Members>
+   </Type>
+</Types>
