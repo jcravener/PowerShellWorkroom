@@ -545,6 +545,8 @@ function Import-JhcUtilJson {
     end { }
 }
 
+#---parses stdout strings into a list of objects
+#
 function Convert-JhcUtilStrToObj {
     param (
         [Parameter(ValueFromPipeline = $true)]
@@ -591,3 +593,18 @@ function Convert-JhcUtilStrToObj {
         return ($m | ConvertFrom-Csv -Delimiter $Delimitter -Header $Header)
     }
 }
+
+#---adding aliases
+New-Alias -Name Convert-JhcStrToObj -Value Convert-JhcUtilStrToObj
+New-Alias -Name Convert-JhcXlsxToCsv -Value Convert-JhcUtilXlsxToCsv
+New-Alias -Name Convertfrom-JhcBase64String -Value Convertfrom-JhcUtilBase64String
+New-Alias -Name ConvertTo-JhcBase64String -Value ConvertTo-JhcUtilBase64String
+New-Alias -Name Get-JhcLongTermHistory -Value Get-JhcUtilLongTermHistory
+New-Alias -Name Get-JhcStockSp -Value Get-JhcUtilStockSp
+New-Alias -Name Import-JhcJson -Value Import-JhcUtilJson
+New-Alias -Name Invoke-JhcScriptBlock -Value Invoke-JhcUtilScriptBlock
+New-Alias -Name Search-JhcAadUserOrg -Value Search-JhcUtilAadUserOrg
+New-Alias -Name Show-JhcFileEncoding -Value Show-JhcUtilFileEncoding
+New-Alias -Name Unprotect-JhcSecureString -Value Unprotect-JhcUtilSecureString
+New-Alias -Name Update-JhcWindowTitle -Value Update-JhcUtilWindowTitle
+
