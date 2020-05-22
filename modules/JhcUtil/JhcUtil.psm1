@@ -2,9 +2,8 @@
 #
 # Collection a variety of useful tools.
 
-#---searches down through a users org given a passed in AAD user serach string
+#---invokext a scriptblock that has been stored in a clixml file 
 #
-
 function Invoke-JhcUtilScriptBlock {
     [CmdletBinding()]
     param (
@@ -28,6 +27,8 @@ function Invoke-JhcUtilScriptBlock {
 
 }
 
+#---updattes the console window
+#
 function Update-JhcUtilWindowTitle {
     [CmdletBinding()]
     param (
@@ -39,6 +40,8 @@ function Update-JhcUtilWindowTitle {
     $Host.UI.RawUI.WindowTitle = $Title
 }
 
+#---searches down through a users org given a passed in AAD user serach string
+#
 function Search-JhcUtilAadUserOrg {
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, Position = 0)]
@@ -272,7 +275,7 @@ function Get-JhcUtilLongTermHistory {
     }
 }
 
-#---This cmdlet requires Excel is installed
+#---converts all the tabs in an Excel file to CSVs - requires that Excel is installed
 #
 function Convert-JhcUtilXlsxToCsv {
     param
@@ -440,6 +443,8 @@ function Show-JhcUtilFileEncoding {
     end { }
 }
 
+#--retrievs a stock price via alphaavantage web service
+#
 function Get-JhcUtilStockSp {
     param
     (
@@ -479,4 +484,110 @@ function Get-JhcUtilStockSp {
     }
 
     end { }
+}
+
+#---reads in text file and outputs it as object if content is valid JSON
+#
+function Import-JhcUtilJson {
+    
+    [CmdletBinding(DefaultParameterSetName = "Path")]
+    param(
+        [Parameter(Mandatory, ParameterSetName = "Path", Position = 0)]
+        [System.String[]]
+        $Path,
+    
+        [Parameter(Mandatory, ParameterSetName = "LiteralPath", ValueFromPipelineByPropertyName = $true)]
+        [Alias("PSPath")]
+        [System.String[]]
+        $LiteralPath,
+
+        [Parameter(ValueFromPipelineByPropertyName = $false)]
+        [System.Int32]
+        $Depth
+    )
+
+    begin { }
+
+    process {
+        $pathsToProcess = @()
+        if ($PSCmdlet.ParameterSetName -eq "LiteralPath") {
+            $pathsToProcess += Resolve-Path -LiteralPath $LiteralPath | Foreach-Object ProviderPath
+        }
+        if ($PSCmdlet.ParameterSetName -eq "Path") {
+            $pathsToProcess += Resolve-Path $Path | Foreach-Object ProviderPath
+        }
+       
+        foreach ($filePath in $pathsToProcess) {
+            if (Test-Path -LiteralPath $filePath -PathType Container) {
+                continue
+            }
+       
+            try {
+                # Read the file specified in $FilePath as a Byte array
+                $stream = [System.IO.File]::ReadAllLines($filePath)                
+                    
+                if ($Depth) {
+                    $stream | ConvertFrom-Json -Depth $Depth
+                }
+                else {
+                    $stream | ConvertFrom-Json
+                }
+                    
+            }
+            catch [Exception] {
+                $errorMessage = [Microsoft.PowerShell.Commands.UtilityResources]::FileReadError -f $FilePath, $_
+                Write-Error -Message $errorMessage -Category ReadError -ErrorId "FileReadError" -TargetObject $FilePath
+                return
+            }
+        }        
+    }
+
+    end { }
+}
+
+function Convert-JhcUtilStrToObj {
+    param (
+        [Parameter(ValueFromPipeline = $true)]
+        [AllowEmptyString()]
+        [System.String[]]
+        $StringInput,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $Pattern = '.',
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $DelimitterPat = '\s+',
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $Delimitter = ' ',
+        [Parameter(Mandatory = $false)]
+        [System.String[]]
+        $Header
+    )
+
+    begin { 
+        $m = @()
+        $mxlen = 0
+    }
+    process {
+        foreach ($l in $StringInput) {
+            if ($l -match $Pattern) {
+                $a = @()
+                $a = ($l.Trim() -replace $DelimitterPat, $Delimitter) -split $Delimitter
+
+                if ($a.Length -gt $mxlen) {
+                    $mxlen = $a.Length
+                }
+                $m += $a -join $Delimitter
+            }
+        }
+    }
+    end {        
+        if (-not $Header) {
+            for ($i = 0; $i -lt $mxlen; $i++) {
+                $Header += "f$($i)"
+            }
+        }
+        return ($m | ConvertFrom-Csv -Delimiter $Delimitter -Header $Header)
+    }
 }
