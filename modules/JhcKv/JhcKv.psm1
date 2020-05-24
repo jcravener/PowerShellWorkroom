@@ -56,21 +56,30 @@ function processSecTag {
         $secObj
     )
 
-    $o
+    $r
 
     if($secObj.Tags.info) {
-        $o = $secObj.Tags.info | ConvertFrom-Json -Depth $Global:jsonDepth
+        $r = $secObj.Tags.info | ConvertFrom-Json -Depth $Global:jsonDepth
     }
     else {
-        "," | ConvertFrom-Csv -Header 'ComputerName', 'Notes'
+        $r = "," | ConvertFrom-Csv -Header 'ComputerName', 'Notes'
     }
-    return $o
+    return $r
 }
 
 function Get-SecretList {
     [OutputType('JhcKv.SecretList')]
     [CmdletBinding()]
     param ()  #--This is needed or else OutputType wont map back to the types.ps1xml
+
+    class SecretList {
+        [System.String]$Name
+        [System.String]$ContentType
+        [System.String]$Created
+        [System.String]$Updated
+        [System.String]$ComputerName
+        [System.String]$Notes
+    }
     
     $obj = getManifest
     $seclst 
@@ -79,9 +88,14 @@ function Get-SecretList {
 
     foreach($s in $seclst) {
         $tg = processSecTag -secObj $s
-        Add-Member -InputObject $s -MemberType NoteProperty -Name 'ComputerName' -Value $tg.ComputerName
-        Add-Member -InputObject $s -MemberType NoteProperty -Name 'Notes' -Value $tg.Notes
-        $s
+        $o = New-Object -TypeName SecretList
+        $o.Name = $s.Name
+        $o.ContentType = $s.ContentType
+        $o.Created = $s.Created
+        $o.Updated = $s.Updated
+        $o.ComputerName = $tg.computername
+        $o.Notes = $tg.notes
+        $o
     }
 }
 
