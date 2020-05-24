@@ -62,12 +62,16 @@ function processSecTag {
         $o = $secObj.Tags.info | ConvertFrom-Json -Depth $Global:jsonDepth
     }
     else {
-        "," | ConvertFrom-Csv -Header 'computername', 'notes'
+        "," | ConvertFrom-Csv -Header 'ComputerName', 'Notes'
     }
     return $o
 }
 
 function Get-SecretList {
+    [OutputType('JhcKv.SecretList')]
+    [CmdletBinding()]
+    param ()  #--This is needed or else OutputType wont map back to the types.ps1xml
+    
     $obj = getManifest
     $seclst 
     $seclst = Get-AzResource -ResourceId $obj.ResourceId | Get-AzKeyVaultSecret
@@ -75,8 +79,9 @@ function Get-SecretList {
 
     foreach($s in $seclst) {
         $tg = processSecTag -secObj $s
-        Add-Member -InputObject $s -PassThru -MemberType NoteProperty -Name 'computername' -Value $tg.computername
-        Add-Member -InputObject $s -PassThru -MemberType NoteProperty -Name 'notes' -Value $tg.notes
+        Add-Member -InputObject $s -MemberType NoteProperty -Name 'ComputerName' -Value $tg.ComputerName
+        Add-Member -InputObject $s -MemberType NoteProperty -Name 'Notes' -Value $tg.Notes
+        $s
     }
 }
 
@@ -96,4 +101,18 @@ function Get-SecretValue {
     end {
         $sec | Select-Object -Property Name, Created, Updated, SecretValue
     }
+}
+
+function Get-Dummy {
+    [OutputType('JhcKv.Dummy')]
+    [CmdletBinding()]
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [System.String]
+        $john
+    )
+    $msg = 'this is a message'
+
+    New-Object -TypeName psobject -Property @{'name' = 'Dummy'; 'msg' = $msg}
 }

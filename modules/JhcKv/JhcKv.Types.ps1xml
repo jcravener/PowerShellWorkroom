@@ -1,0 +1,25 @@
+<Types>
+   <Type>
+       <Name>JhcKv.SecretList</Name>
+       <Members>
+           <ScriptProperty>
+               <Name>Name</Name>
+               <GetScriptBlock>
+                  $this.Name
+               </GetScriptBlock>
+           </ScriptProperty>
+           <ScriptProperty>
+               <Name>ComputerName</Name>
+               <GetScriptBlock>
+                  $this.ComputerName
+               </GetScriptBlock>
+           </ScriptProperty>
+           <ScriptProperty>
+               <Name>Notes</Name>
+               <GetScriptBlock>
+                  $this.Notes
+               </GetScriptBlock>
+           </ScriptProperty>
+       </Members>
+   </Type>
+</Types>
