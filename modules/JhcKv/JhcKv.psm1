@@ -116,17 +116,3 @@ function Get-SecretValue {
         $sec | Select-Object -Property Name, Created, Updated, SecretValue
     }
 }
-
-function Get-Dummy {
-    [OutputType('JhcKv.Dummy')]
-    [CmdletBinding()]
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [System.String]
-        $john
-    )
-    $msg = 'this is a message'
-
-    New-Object -TypeName psobject -Property @{'name' = 'Dummy'; 'msg' = $msg}
-}
