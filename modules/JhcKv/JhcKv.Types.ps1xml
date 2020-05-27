@@ -15,9 +15,27 @@
                </GetScriptBlock>
            </ScriptProperty>
            <ScriptProperty>
+               <Name>UserName</Name>
+               <GetScriptBlock>
+                  $this.UserName
+               </GetScriptBlock>
+           </ScriptProperty>
+           <ScriptProperty>
                <Name>Notes</Name>
                <GetScriptBlock>
                   $this.Notes
+               </GetScriptBlock>
+           </ScriptProperty>
+           <ScriptProperty>
+               <Name>Created</Name>
+               <GetScriptBlock>
+                  $this.Created
+               </GetScriptBlock>
+           </ScriptProperty>
+           <ScriptProperty>
+               <Name>Updated</Name>
+               <GetScriptBlock>
+                  $this.Updated
                </GetScriptBlock>
            </ScriptProperty>
        </Members>

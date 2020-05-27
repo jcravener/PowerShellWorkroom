@@ -62,7 +62,7 @@ function processSecTag {
         $r = $secObj.Tags.info | ConvertFrom-Json -Depth $Global:jsonDepth
     }
     else {
-        $r = "," | ConvertFrom-Csv -Header 'ComputerName', 'Notes'
+        $r = "," | ConvertFrom-Csv -Header 'ComputerName', 'UserName', 'Notes'
     }
     return $r
 }
@@ -78,6 +78,7 @@ function Get-SecretList {
         [System.String]$Created
         [System.String]$Updated
         [System.String]$ComputerName
+        [System.String]$UserName
         [System.String]$Notes
     }
     
@@ -94,6 +95,7 @@ function Get-SecretList {
         $o.Created = $s.Created
         $o.Updated = $s.Updated
         $o.ComputerName = $tg.computername
+        $o.UserName = $tg.username
         $o.Notes = $tg.notes
         $o
     }

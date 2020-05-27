@@ -2,7 +2,7 @@
 <Configuration>
   <ViewDefinitions>
     <View>
-      <Name>Get-SecretList.SecretList</Name>
+      <Name>Get-SecretList.SecretList_lst</Name>
       <ViewSelectedBy>
         <TypeName>Get-SecretList.SecretList</TypeName>
       </ViewSelectedBy>
@@ -19,13 +19,53 @@
                 <PropertyName>ComputerName</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Notes</Label>
-                <PropertyName>Notes</PropertyName>
+                <Label>UserName</Label>
+                <PropertyName>UserName</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>
       </ListControl>
+    </View>
+    <View>
+      <Name>Get-SecretList.SecretList_tbl</Name>
+      <ViewSelectedBy>
+        <TypeName>Get-SecretList.SecretList</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Width>14</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ComputerName</Label>
+            <Width>24</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>UserName</Label>
+            <Width>14</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ComputerName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>UserName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
   </ViewDefinitions>
 </Configuration>
