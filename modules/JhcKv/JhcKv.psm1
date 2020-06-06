@@ -59,7 +59,7 @@ function processSecTag {
     $r
 
     if($secObj.Tags.info) {
-        $r = $secObj.Tags.info | ConvertFrom-Json -Depth $Global:jsonDepth
+        $r = $secObj.Tags.info | ConvertFrom-Json
     }
     else {
         $r = "," | ConvertFrom-Csv -Header 'ComputerName', 'UserName', 'Notes'
