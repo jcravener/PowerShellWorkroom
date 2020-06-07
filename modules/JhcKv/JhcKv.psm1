@@ -118,3 +118,54 @@ function Get-SecretValue {
         $sec | Select-Object -Property Name, Created, Updated, SecretValue
     }
 }
+
+function Add-Secret {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Name,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $UserName,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $ComputerName,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $Notes,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $ContentType = 'txt',
+        [Parameter(Mandatory = $true)]
+        [System.Security.SecureString]
+        $SecretValue
+    )
+
+    $info = ''
+    $header = 'UserName','ComputerName','Notes'
+    $tagVal = '' 
+
+    if($UserName) {
+        $info += $UserName
+    }
+    $info += ','
+    if($ComputerName) {
+        $info += $ComputerName
+    }
+    $info += ','
+    if($Notes){
+        $info += $Notes
+    }
+    
+    $tagVal =  $info | ConvertFrom-Csv -Header $header | ConvertTo-Json -Compress
+    
+    while($SecretValue.Length -eq 0){
+        Write-Warning -Message "SecretValue is empty."
+        $SecretValue = Read-Host -Prompt 'SecretValue' -AsSecureString
+    }
+
+    $obj = getManifest
+
+    return $obj
+}
