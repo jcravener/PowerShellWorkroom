@@ -84,7 +84,11 @@ function Get-SecretList {
     
     $obj = getManifest
     $seclst 
-    $seclst = Get-AzResource -ResourceId $obj.ResourceId | Get-AzKeyVaultSecret
+    
+    $seclst = Get-AzKeyVaultSecret -ResourceId $obj.ResourceId
+    if(-not $?) {
+        return $null
+    }
     $tg
 
     foreach($s in $seclst) {
@@ -166,6 +170,45 @@ function Add-Secret {
     }
 
     $obj = getManifest
+    if(Get-AzKeyVaultSecret -ResourceId $obj.ResourceId -Name $Name) {
+        Write-Error -Message "Secret: $Name already exists."
+        return $null
+    }
 
-    return $obj
+    $rt = Set-AzKeyVaultSecret -VaultName $obj.Name -Name $Name -SecretValue $SecretValue -ContentType $ContentType -Tag @{'info' = $tagVal}
+    if(-not $?){
+        return $null
+    }
+
+    return $rt | Select-Object -Property Name, Created
+}
+
+function Update-Secret {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Name,
+        [Parameter(Mandatory = $true)]
+        [System.Security.SecureString]
+        $SecretValue
+    )
+
+    while($SecretValue.Length -eq 0){
+        Write-Warning -Message "SecretValue is empty."
+        $SecretValue = Read-Host -Prompt 'SecretValue' -AsSecureString
+    }
+
+    $obj = getManifest
+    if(-not (Get-AzKeyVaultSecret -ResourceId $obj.ResourceId -Name $Name)) {
+        Write-Error -Message "Secret: $Name doesn't exist."
+        return $null
+    }
+
+    $rt = Set-AzKeyVaultSecret -VaultName $obj.Name -Name $Name -SecretValue $SecretValue
+    if(-not $?){
+        return $null
+    }
+
+    return $rt | Select-Object -Property Name, Updated
 }
