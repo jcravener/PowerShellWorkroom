@@ -57,24 +57,40 @@ function Get-ScoreCard {
 
 function New-Golfer {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [string]
         $FirstName,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [string]
         $LastName,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [golferType]
         [ValidateSet('man', 'woman')]
         $GolferType,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [decimal]
-        $Index
+        $Index,
+        [Parameter(Mandatory = $true, ValueFromPipeline, ParameterSetName = "valueObject")]
+        [System.Object[]]
+        $ScoreCardRecord
     )
 
-    $rt = New-Object -TypeName golfer -ArgumentList $FirstName, $LastName, $GolferType, $Index
-
-    return $rt
+    begin {
+        $rt = @()
+    }
+    process {
+        if ($ScoreCardRecord) {
+            foreach ($r in $ScoreCardRecord) {
+                $rt += New-Object -TypeName golfer -ArgumentList $r.FirstName, $r.LastName, $r.GolferType, $r.Index
+            }
+        }
+        else {
+            $rt = New-Object -TypeName golfer -ArgumentList $FirstName, $LastName, $GolferType, $Index                
+        }
+    }
+    end {
+        return $rt
+    }
 }
 
 function Get-GolferCourseHc {
@@ -235,7 +251,7 @@ function Get-GolferGrossScore {
         }        
     }
     end {
-        if(-not $rt){
+        if (-not $rt) {
             $errMsg = "No gross scorew found for $FirstName $LastName"
             throw $errMsg
             return    
