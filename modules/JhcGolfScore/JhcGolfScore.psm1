@@ -212,7 +212,7 @@ function Get-ScoreRecord {
 function Get-GolferGrossScore {
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
-        [System.Object]
+        [System.Object[]]
         $ScoreRecord,
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -222,5 +222,24 @@ function Get-GolferGrossScore {
         $LastName
     )
 
-    return ($ScoreRecord | Where-Object -Property FirstName -EQ $FirstName | Where-Object -Property LastName -EQ $LastName)
+    begin {
+        $rt = $null
+    }
+    process {
+        
+        foreach ($r in $ScoreRecord) {
+            if ($r.FirstName -eq $FirstName -and $r.LastName -eq $LastName) {
+                $rt = $r
+                break
+            } 
+        }        
+    }
+    end {
+        if(-not $rt){
+            $errMsg = "No gross scorew found for $FirstName $LastName"
+            throw $errMsg
+            return    
+        }
+        return $rt        
+    }
 }
