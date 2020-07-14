@@ -1,0 +1,262 @@
+{
+    "courseDisplayName": "Aldarra Golf Club",
+    "courseName": "AldarraGC",
+    "ratingAndSlope": [
+        {
+            "type": "Men",
+            "teeLocation": "Aldarra",
+            "rating": 74.9,
+            "slope": 151
+        },
+        {
+            "type": "Women",
+            "teeLocation": "Aldarra",
+            "rating": 80.8,
+            "slope": 154
+        },
+        {
+            "type": "Men",
+            "teeLocation": "Championship",
+            "rating": 72.9,
+            "slope": 147
+        },
+        {
+            "type": "Women",
+            "teeLocation": "Championship",
+            "rating": 78.2,
+            "slope": 151
+        },
+        {
+            "type": "Men",
+            "teeLocation": "Member",
+            "rating": 70.6,
+            "slope": 139
+        },
+        {
+            "type": "Women",
+            "teeLocation": "Member",
+            "rating": 76.6,
+            "slope": 147
+        },
+        {
+            "type": "Men",
+            "teeLocation": "Club",
+            "rating": 67.9,
+            "slope": 128
+        },
+        {
+            "type": "Women",
+            "teeLocation": "Club",
+            "rating": 73.8,
+            "slope": 146
+        },
+        {
+            "type": "Men",
+            "teeLocation": "Forward",
+            "rating": 65.4,
+            "slope": 122
+        },
+        {
+            "type": "Women",
+            "teeLocation": "Forward",
+            "rating": 70.3,
+            "slope": 135
+        },
+        {
+            "type": "Men",
+            "teeLocation": "ComboChampMember",
+            "rating": 71.0,
+            "slope": 142
+        },
+        {
+            "type": "Women",
+            "teeLocation": "ComboChampMember",
+            "rating": 77.0,
+            "slope": 148
+        },
+        {
+            "type": "Men",
+            "teeLocation": "ComboMemberClub",
+            "rating": 68.6,
+            "slope": 132
+        },
+        {
+            "type": "Women",
+            "teeLocation": "ComboMemberClub",
+            "rating": 74.7,
+            "slope": 146
+        }
+    ],
+    "holes": [
+        {
+            "holeNumber": 1,
+            "par": 4,
+            "handicap": 5
+        },
+        {
+            "holeNumber": 2,
+            "par": 3,
+            "handicap": 9
+        },
+        {
+            "holeNumber": 3,
+            "par": 5,
+            "handicap": 1
+        },
+        {
+            "holeNumber": 4,
+            "par": 4,
+            "handicap": 7
+        },
+        {
+            "holeNumber": 5,
+            "par": 4,
+            "handicap": 11
+        },
+        {
+            "holeNumber": 6,
+            "par": 3,
+            "handicap": 15
+        },
+        {
+            "holeNumber": 7,
+            "par": 5,
+            "handicap": 13
+        },
+        {
+            "holeNumber": 8,
+            "par": 4,
+            "handicap": 3
+        },
+        {
+            "holeNumber": 9,
+            "par": 3,
+            "handicap": 17
+        },
+        {
+            "holeNumber": 10,
+            "par": 4,
+            "handicap": 14
+        },
+        {
+            "holeNumber": 11,
+            "par": 5,
+            "handicap": 2
+        },
+        {
+            "holeNumber": 12,
+            "par": 5,
+            "handicap": 18
+        },
+        {
+            "holeNumber": 13,
+            "par": 3,
+            "handicap": 12
+        },
+        {
+            "holeNumber": 14,
+            "par": 4,
+            "handicap": 16
+        },
+        {
+            "holeNumber": 15,
+            "par": 3,
+            "handicap": 4
+        },
+        {
+            "holeNumber": 16,
+            "par": 4,
+            "handicap": 8
+        },
+        {
+            "holeNumber": 17,
+            "par": 4,
+            "handicap": 10
+        },
+        {
+            "holeNumber": 18,
+            "par": 4,
+            "handicap": 6
+        }
+    ],
+    "lengths": [
+        {
+            "type": "Men",
+            "teeLocation": "Championship",
+            "distances": [
+                {
+                    "holeNumber": 1,
+                    "distance": 417
+                },
+                {
+                    "holeNumber": 2,
+                    "distance": 168
+                },
+                {
+                    "holeNumber": 3,
+                    "distance": 550
+                },
+                {
+                    "holeNumber": 4,
+                    "distance": 369
+                },
+                {
+                    "holeNumber": 5,
+                    "distance": 387
+                },
+                {
+                    "holeNumber": 6,
+                    "distance": 176
+                },
+                {
+                    "holeNumber": 7,
+                    "distance": 503
+                },
+                {
+                    "holeNumber": 8,
+                    "distance": 456
+                },
+                {
+                    "holeNumber": 9,
+                    "distance": 137
+                },
+                {
+                    "holeNumber": 10,
+                    "distance": 357
+                },
+                {
+                    "holeNumber": 11,
+                    "distance": 525
+                },
+                {
+                    "holeNumber": 12,
+                    "distance": 516
+                },
+                {
+                    "holeNumber": 13,
+                    "distance": 230
+                },
+                {
+                    "holeNumber": 14,
+                    "distance": 411
+                },
+                {
+                    "holeNumber": 15,
+                    "distance": 219
+                },
+                {
+                    "holeNumber": 16,
+                    "distance": 427
+                },
+                {
+                    "holeNumber": 17,
+                    "distance": 340
+                },
+                {
+                    "holeNumber": 18,
+                    "distance": 422
+                }
+            ]
+        }
+    ]
+}
