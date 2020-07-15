@@ -1,6 +1,11 @@
 
 $Script:scoreCardDir = (Split-Path -Path $PSCommandPath -Parent) + '\scorecards'
 $Script:jsonDepth = 4
+$Script:scoreCardRecord = Get-ChildItem -Path $Script:scoreCardDir -File -Filter "*.json" | Get-Content | ConvertFrom-Json
+if (-not $?) {
+    $errMsg = "Had problems reading course score card records."
+    throw $errMsg
+}
 
 enum golferType {
     man = 1
@@ -12,6 +17,8 @@ class golfer {
     [string]$LastName
     [golferType]$GolferType
     [decimal]$Index
+    [string]$CourseName
+    [string]$TeeLocation
 
     golfer (
         [string]$fn,
@@ -31,23 +38,17 @@ function Get-CourseList {
     $gc | Select-Object -Property @{Name = 'Name'; Expression = { $_.BaseName } }
 }
 
-function Get-ScoreCard {
+function Get-CourseScoreCard {
     param (
         [Parameter(Mandatory = $true)]
         [string]
-        [ValidateSet('AldarraGC')]
         $CourseName
     )
 
-    $jf = Get-ChildItem -Path $Script:scoreCardDir  | Where-Object -Property BaseName -EQ $CourseName
-    if (-not $?) {
-        $errMsg = "Could not find score card file for $CourseName"
-        throw $errMsg
-        return
-    }
-    $jo = Get-Content -Path $jf.FullName | ConvertFrom-Json
-    if (-not $?) {
-        $errMsg = "Had problems reading score card file for $CourseName"
+    $jo = $Script:scoreCardRecord | Where-Object -Property courseName -EQ $CourseName
+
+    if (-not $jo) {
+        $errMsg = "Could not find course score card record for $CourseName"
         throw $errMsg
         return
     }
@@ -70,6 +71,12 @@ function New-Golfer {
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [decimal]
         $Index,
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [string]
+        $CourseName,
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [string]
+        $TeeLocation,
         [Parameter(Mandatory = $true, ValueFromPipeline, ParameterSetName = "valueObject")]
         [System.Object[]]
         $ScoreCardRecord
@@ -81,11 +88,25 @@ function New-Golfer {
     process {
         if ($ScoreCardRecord) {
             foreach ($r in $ScoreCardRecord) {
-                $rt += New-Object -TypeName golfer -ArgumentList $r.FirstName, $r.LastName, $r.GolferType, $r.Index
+                $rt += [golfer]::new($r.FirstName, $r.LastName, $r.GolferType, $r.Index)
+
+                if ($ScoreCardRecord.CourseName) {
+                    $rt[-1].CourseName = $ScoreCardRecord.CourseName
+                }
+                if ($ScoreCardRecord.TeeLocation) {
+                    $rt[-1].TeeLocation = $ScoreCardRecord.TeeLocation
+                }
             }
         }
         else {
-            $rt = New-Object -TypeName golfer -ArgumentList $FirstName, $LastName, $GolferType, $Index                
+            $rt = [golfer]::new($FirstName, $LastName, $GolferType, $Index)                
+
+            if ($CourseName) {
+                $rt.CourseName = $CourseName
+            }
+            if ($TeeLocation) {
+                $rt.TeeLocation = $TeeLocation
+            }
         }
     }
     end {
@@ -95,44 +116,84 @@ function New-Golfer {
 
 function Get-GolferCourseHc {
     param (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [golfer]
-        $Golfer,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [string]
-        [ValidateSet('AldarraGC')]
+        $FirstName,
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [string]
+        $LastName,
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [golferType]
+        [ValidateSet('man', 'woman')]
+        $GolferType,
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [decimal]
+        $Index,
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [string]
         $CourseName,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [string]
-        [ValidateSet('Aldarra', 'Championship', 'Member', 'Club', 'Forward', 'ComboChampMember', 'ComboMemberClub')]
-        $TeeLocation
+        $TeeLocation,
+        [Parameter(Mandatory = $true, ValueFromPipeline, ParameterSetName = "valueObject")]
+        [golfer[]]
+        $Golfer
     )
 
     begin {
         [int]$ch = 0
-        $sc = Get-ScoreCard -CourseName $CourseName
-        $par = ($sc.holes | Measure-Object -Property par -Sum).Sum
-        $rt = New-Object -TypeName psobject
+        $rt = @()
     }
     process {
-        if ($golfer.GolferType -eq 'man') {
-            $t = $sc.ratingAndSlope | Where-Object -Property type -EQ 'Men' | Where-Object -Property teeLocation -EQ $TeeLocation
+        if ($Golfer) {
+            foreach ($g in $Golfer) {
+                $sc = Get-CourseScoreCard -CourseName $Golfer.CourseName
+                $par = ($sc.holes | Measure-Object -Property par -Sum).Sum
+                
+                $rt += $g | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json
+                
+                if ($golfer.GolferType -eq 'man') {
+                    $t = $sc.ratingAndSlope | Where-Object -Property type -EQ 'Men' | Where-Object -Property teeLocation -EQ $Golfer.TeeLocation
+                }
+                else {
+                    $t = $sc.ratingAndSlope | Where-Object -Property type -EQ 'Women' | Where-Object -Property teeLocation -EQ $Golfer.TeeLocation
+                }
+
+                $ch = (($golfer.Index * $t.slope) / 113) + ($t.rating - $par)
+                Add-Member -InputObject $rt[-1] -MemberType NoteProperty -Name CourseDisplayName -Value $sc.CourseDisplayName
+                Add-Member -InputObject $rt[-1] -MemberType NoteProperty -Name Rating -Value $t.rating
+                Add-Member -InputObject $rt[-1] -MemberType NoteProperty -Name Slope -Value $t.slope
+                Add-Member -InputObject $rt[-1] -MemberType NoteProperty -Name CourseHandicap -Value $ch
+            }
         }
         else {
-            $t = $sc.ratingAndSlope | Where-Object -Property type -EQ 'Women' | Where-Object -Property teeLocation -EQ $TeeLocation
+            
+            $sc = Get-CourseScoreCard -CourseName $CourseName
+            $par = ($sc.holes | Measure-Object -Property par -Sum).Sum
+            
+            Write-Verbose $sc -Verbose
+            Write-Verbose $par -Verbose
+            Write-Verbose $GolferType -Verbose
+
+            $rt = [golfer]::new($FirstName, $LastName, $GolferType, $Index)
+            $rt.CourseName = $CourseName
+            $rt.TeeLocation = $TeeLocation
+
+            if ($GolferType -eq 'man') {
+                $t = $sc.ratingAndSlope | Where-Object -Property type -EQ 'Men' | Where-Object -Property teeLocation -EQ $TeeLocation
+            }
+            else {
+                $t = $sc.ratingAndSlope | Where-Object -Property type -EQ 'Women' | Where-Object -Property teeLocation -EQ $TeeLocation
+            }
+
+            $ch = (($golfer.Index * $t.slope) / 113) + ($t.rating - $par)
+            Add-Member -InputObject $rt -MemberType NoteProperty -Name CourseDisplayName -Value $sc.CourseDisplayName
+            Add-Member -InputObject $rt -MemberType NoteProperty -Name Rating -Value $t.rating
+            Add-Member -InputObject $rt -MemberType NoteProperty -Name Slope -Value $t.slope
+            Add-Member -InputObject $rt -MemberType NoteProperty -Name CourseHandicap -Value $ch
         }
     }
     end {
-        $ch = (($golfer.Index * $t.slope) / 113) + ($t.rating - $par)
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name FirstName -Value $golfer.FirstName
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name LastName -Value $golfer.LastName
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name Index -Value $golfer.Index
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name CourseDisplayName -Value $sc.CourseDisplayName
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name CourseName -Value $sc.CourseName
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name TeeBox -Value $TeeLocation
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name Rating -Value $t.rating
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name Slope -Value $t.slope
-        Add-Member -InputObject $rt -MemberType NoteProperty -Name CourseHandicap -Value $ch
         return $rt
     }
 }
@@ -148,7 +209,7 @@ function Get-GolferPops {
         [ref]$r = 0
     }
     process {
-        $sc = Get-ScoreCard -CourseName $GolferCourseHc.CourseName
+        $sc = Get-CourseScoreCard -CourseName $GolferCourseHc.CourseName
         $a = $sc.holes | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json | Add-Member -PassThru -MemberType NoteProperty -Name popCount -Value 0 | Sort-Object -Property handicap
 
         $gch = $GolferCourseHc | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json
