@@ -201,37 +201,42 @@ function Get-GolferCourseHc {
 function Get-GolferPops {
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [System.Object]
+        [System.Object[]]
         $GolferCourseHc
     )
 
     begin {
         [ref]$r = 0
+        $rt = @()
     }
     process {
-        $sc = Get-CourseScoreCard -CourseName $GolferCourseHc.CourseName
-        $a = $sc.holes | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json | Add-Member -PassThru -MemberType NoteProperty -Name popCount -Value 0 | Sort-Object -Property handicap
-
-        $gch = $GolferCourseHc | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json
-
-        for ($i = 1; $i -le $gch.CourseHandicap; $i++) {
-            
-            if ($i -gt 18) {
-                $q = ([math]::DivRem($i, 18, $r))
-                $n = $i - (18 * $q)
-                if ($q -gt 1) {
-                    $n++
-                }                
+        foreach ($g in $GolferCourseHc) {
+            $sc = Get-CourseScoreCard -CourseName $g.CourseName
+            $a = $sc.holes | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json | Add-Member -PassThru -MemberType NoteProperty -Name popCount -Value 0 | Sort-Object -Property handicap
+    
+            $gch = $g | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json
+    
+            for ($i = 1; $i -le $gch.CourseHandicap; $i++) {
+                
+                if ($i -gt 18) {
+                    $q = ([math]::DivRem($i, 18, $r))
+                    $n = $i - (18 * $q)
+                    if ($q -gt 1) {
+                        $n++
+                    }                
+                }
+                else {
+                    $n = $i
+                }
+                $a[$n - 1].popCount++
             }
-            else {
-                $n = $i
-            }
-            $a[$n - 1].popCount++
+
+            $rt += $gch | Add-Member -PassThru -MemberType NoteProperty -Name Holes -Value ($a | Sort-Object -Property holeNumber)
         }
-
     }
     end {
-        $gch | Add-Member -PassThru -MemberType NoteProperty -Name Holes -Value ($a | Sort-Object -Property holeNumber)
+        return $rt
+        #$gch | Add-Member -PassThru -MemberType NoteProperty -Name Holes -Value ($a | Sort-Object -Property holeNumber)
     }
 }
 
@@ -302,8 +307,7 @@ function Get-GolferGrossScore {
     begin {
         $rt = $null
     }
-    process {
-        
+    process {        
         foreach ($r in $ScoreRecord) {
             if ($r.FirstName -eq $FirstName -and $r.LastName -eq $LastName) {
                 $rt = $r
