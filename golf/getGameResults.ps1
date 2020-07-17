@@ -62,12 +62,12 @@ function getBestScore {
 
     #---grab first val
     $firstVal = $a[0]
-    $nextVal
+    $nextVal = 0
     $firstScoreType
     $nextScoreType
 
     if($firstVal.obj.grossScore -eq $firstVal.obj.netScore) {
-        $firstScoreType = 'both'
+        $firstScoreType = 'either'
 
     }elseif($firstVal.value -eq $firstVal.obj.grossScore) {
         $firstScoreType = 'grossScore'
@@ -83,7 +83,7 @@ function getBestScore {
         }
 
         if($a[$i].obj.grossScore -eq $a[$i].obj.netScore) {
-            $nextScoreType = 'both'
+            $nextScoreType = 'either'
         }
         elseif($a[$i].value -eq $a[$i].obj.grossScore) {
             $nextScoreType = 'grossScore'
@@ -92,13 +92,23 @@ function getBestScore {
             $nextScoreType = 'netScore'
         }
 
-        if(($nextScoreType -eq 'both') -or ($firstScoreType -ne $nextScoreType)) {
+        if(($nextScoreType -eq 'either') -or ($firstScoreType -ne $nextScoreType)) {
             $nextVal = $a[$i]
             break
         }
-    } 
+    }
+
+    if($nextVal -eq 0) {
+        $errMsg = "Could not calulate next best score for team $team on hole $hole"
+        throw $errMsg
+        exit
+    }
+
+    $firstVal.obj.winningScore = $firstScoreType
+    $nextVal.obj.winningScore = $nextScoreType
 
     return $firstVal.obj, $nextVal.obj
+    #return $a
 }
 
 #--- Main -----------------------------------------------------------------------------
@@ -120,9 +130,12 @@ foreach($g in $golferRecord) {
     Get-GolferScore -GolferPops $g -GolferGrossScore $ggs | Out-Null
 
     foreach($h in $g.Holes) {
-        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = {$g.FirstName}}, @{name = 'LastName'; Expression = {$g.LastName}}, @{name = 'Team'; Expression = {$g.Team}}, * 
+        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = {$g.FirstName}}, @{name = 'LastName'; Expression = {$g.LastName}}, @{name = 'Team'; Expression = {$g.Team}}, *, @{name = 'winningScore'; expression = {$null}} 
     }
 }
+
+# $scoreTable
+# exit
 
 #$hl = 1
 $tm = 'B'
