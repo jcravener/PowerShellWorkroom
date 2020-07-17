@@ -42,24 +42,16 @@ function getBestScore {
         [System.Int32]
         $hole
     )
+    
+    $testTable = $sTable | Where-Object -Property Team -EQ $team | Where-Object -Property holeNumber -EQ $hole
+    $a = @()
 
-    $grossScore = $sTable | Where-Object -Property Team -EQ $team | Where-Object -Property holeNumber -EQ $hole | Sort-Object -Property grossScore
-    $netScore = $sTable | Where-Object -Property Team -EQ $team | Where-Object -Property holeNumber -EQ $hole | Sort-Object -Property netScore
+    foreach ($i in $testTable) {
+        $a += New-Object -TypeName psobject -Property @{'value' = $i.grossScore; 'obj' = $i}
+        $a += New-Object -TypeName psobject -Property @{'value' = $i.netScore; 'obj' = $i}
+    }
 
-    $gs = $grossScore[0]
-    $ns = $netScore[0]
-
-    # if($gs -eq $ns) {
-    #     $gs = $grossScore[1]
-    # }
-
-    # if(($gs.grossScore + $ns.netScore) -gt ($gs.netScore + $ns.grossScore)) {
-    #     $tmp = $gs
-    #     $gs = $ns
-    #     $ns = $tmp
-    # }
-
-    return $gs, $ns
+    return $a | Sort-Object -Property value
 }
 
 #--- Main -----------------------------------------------------------------------------
@@ -85,7 +77,7 @@ foreach($g in $golferRecord) {
     }
 }
 
-$hl = 16
+$hl = 15
 $tm = 'B'
 getBestScore -sTable $scoreTable -team $tm -hole $hl
 '--------------'
