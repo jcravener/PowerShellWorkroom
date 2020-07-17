@@ -6,8 +6,8 @@ $Script:scriptRoot = Split-Path -Path $PSCommandPath -Parent
 $Script:modulePath = $Script:scriptRoot + "\module\JhcGolfScore"
 $Script:csvPath = $Script:scriptRoot + "\scores\score.csv"
 
-Import-Module -FullyQualifiedName $Script:modulePath
+Import-Module -FullyQualifiedName $Script:modulePath -Force
 
 $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
 
-$scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops
+$scoreRecord | New-Golfer 

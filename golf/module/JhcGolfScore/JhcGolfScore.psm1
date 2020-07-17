@@ -15,6 +15,7 @@ enum golferType {
 class golfer {
     [string]$FirstName
     [string]$LastName
+    [string]$Team
     [golferType]$GolferType
     [decimal]$Index
     [string]$CourseName
@@ -73,6 +74,9 @@ function New-Golfer {
         $Index,
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [string]
+        $Team,
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [string]
         $CourseName,
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [string]
@@ -90,6 +94,9 @@ function New-Golfer {
             foreach ($r in $ScoreCardRecord) {
                 $rt += [golfer]::new($r.FirstName, $r.LastName, $r.GolferType, $r.Index)
 
+                if ($ScoreCardRecord.Team) {
+                    $rt[-1].Team = $ScoreCardRecord.Team
+                }
                 if ($ScoreCardRecord.CourseName) {
                     $rt[-1].CourseName = $ScoreCardRecord.CourseName
                 }
@@ -101,6 +108,9 @@ function New-Golfer {
         else {
             $rt = [golfer]::new($FirstName, $LastName, $GolferType, $Index)                
 
+            if ($Team) {
+                $rt.Team = $Team
+            }
             if ($CourseName) {
                 $rt.CourseName = $CourseName
             }
