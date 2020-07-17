@@ -104,8 +104,8 @@ function getBestScore {
         exit
     }
 
-    $firstVal.obj.winningScore = $firstScoreType
-    $nextVal.obj.winningScore = $nextScoreType
+    $firstVal.obj.lowScore = $firstScoreType
+    $nextVal.obj.lowScore = $nextScoreType
 
     return $firstVal.obj, $nextVal.obj
     #return $a
@@ -130,7 +130,7 @@ foreach($g in $golferRecord) {
     Get-GolferScore -GolferPops $g -GolferGrossScore $ggs | Out-Null
 
     foreach($h in $g.Holes) {
-        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = {$g.FirstName}}, @{name = 'LastName'; Expression = {$g.LastName}}, @{name = 'Team'; Expression = {$g.Team}}, *, @{name = 'winningScore'; expression = {$null}}, @{name = 'netBirdie'; expression = {$null}}, @{name = 'grossBirdie'; expression = {$null}} 
+        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = {$g.FirstName}}, @{name = 'LastName'; Expression = {$g.LastName}}, @{name = 'Team'; Expression = {$g.Team}}, *, @{name = 'lowScore'; expression = {$null}}, @{name = 'netBirdie'; expression = {$null}}, @{name = 'grossBirdie'; expression = {$null}} 
     }
 }
 
@@ -140,11 +140,11 @@ $sum = 0
 foreach($t in ($scoreTable | Group-Object -Property Team | ForEach-Object{$_.Name})) {
     foreach($h in (1..18)) {
         foreach ($r in (getBestScore -sTable $scoreTable -team $t -hole $h)) {
-            if($r.winningScore -eq 'either') {
+            if($r.lowScore -eq 'either') {
                 $sum += $r.grossScore
             }
             else {
-                $sum += $r.($r.winningScore)
+                $sum += $r.($r.lowScore)
             }
         }
 
@@ -170,7 +170,7 @@ foreach($h in ($resultsTable | Group-Object -Property Hole)) {
             $g.winner = $g.Team
         }
         
-        $finalResults += $g | Select-Object -Property Hole, Team, combinedScore, Winner
+        $finalResults += $g | Select-Object -Property Hole, Team, combinedScore, Winner, @{name = 'grossBirdies'; expression = {$null}}, @{name = 'netBirdies'; expression = {$null}}
         $ct++
     }
 
@@ -179,13 +179,6 @@ foreach($h in ($resultsTable | Group-Object -Property Hole)) {
     }
     $ct = 0
 }
-
-foreach($s in $scoreTable) {
-
-}
-
-#$finalResults
-#$scoreTable | Group-Object -Property Team, holeNumber | % group | Select-Object -ExcludeProperty equitableScore
 
 foreach($s in $scoreTable) {
     if($s.grossScore -lt $s.par) {
@@ -197,4 +190,32 @@ foreach($s in $scoreTable) {
     }
 }
 
-$scoreTable | Sort-Object -Property Team, holeNumber | Select-Object -Property *Name, Team, holeNumber, par, popCount, grossScore, netScore, netBirdie, grossBirdie, winningScore
+#$scoreTable | Sort-Object -Property Team, holeNumber | Select-Object -Property *Name, Team, holeNumber, par, popCount, grossScore, netScore, netBirdie, grossBirdie, lowScore
+#$finalResults | Sort-Object -Property Hole, Team
+
+$grossBirdieTable = $scoreTable | Where-Object {$_.grossBirdie} | Group-Object -Property holeNumber, Team -NoElement | Select-Object -Property @{name = 'Hole'; expression = {($_.name -split ',')[0].trim()}}, @{name = 'Team'; expression = {($_.name -split ',')[-1].trim()}}, Count
+$netBirdieTable = $scoreTable | Where-Object {$_.netBirdie} | Group-Object -Property holeNumber, Team -NoElement | Select-Object -Property @{name = 'Hole'; expression = {($_.name -split ',')[0].trim()}}, @{name = 'Team'; expression = {($_.name -split ',')[-1].trim()}}, Count
+
+#$grossBirdieTable
+#$netBirdieTable
+foreach($r in $finalResults){
+    $c = $null
+    $c = ($grossBirdieTable | Where-Object -Property Hole -EQ $r.Hole | Where-Object -Property Team -EQ $r.Team).Count
+    if($c) {
+        $r.grossBirdies = $c    
+    }
+    else {
+        $r.grossBirdies = $null
+    }
+
+    $c = $null
+    $c = ($netBirdieTable | Where-Object -Property Hole -EQ $r.Hole | Where-Object -Property Team -EQ $r.Team).Count
+    if($c) {
+        $r.netBirdies = $c    
+    }
+    else {
+        $r.netBirdies = $null
+    }
+}
+
+$finalResults
