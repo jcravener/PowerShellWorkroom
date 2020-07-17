@@ -236,7 +236,6 @@ function Get-GolferPops {
     }
     end {
         return $rt
-        #$gch | Add-Member -PassThru -MemberType NoteProperty -Name Holes -Value ($a | Sort-Object -Property holeNumber)
     }
 }
 
@@ -296,10 +295,10 @@ function Get-GolferGrossScore {
         [Parameter(Mandatory = $true, ValueFromPipeline)]
         [System.Object[]]
         $ScoreRecord,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName)]
         [System.String]
         $FirstName,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName)]
         [System.String]
         $LastName
     )
@@ -317,7 +316,7 @@ function Get-GolferGrossScore {
     }
     end {
         if (-not $rt) {
-            $errMsg = "No gross scorew found for $FirstName $LastName"
+            $errMsg = "No gross score found for $FirstName $LastName"
             throw $errMsg
             return    
         }
