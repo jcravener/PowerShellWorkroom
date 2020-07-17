@@ -1,6 +1,13 @@
 #
 # This is the One Gross One Net score script
 #
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory)]
+    [System.Int32]
+    $hl
+)
+
 
 #--- Setup ----------------------------------------------------------------------------
 
@@ -51,7 +58,47 @@ function getBestScore {
         $a += New-Object -TypeName psobject -Property @{'value' = $i.netScore; 'obj' = $i}
     }
 
-    return $a | Sort-Object -Property value
+    $a = $a | Sort-Object -Property value
+
+    #---grab first val
+    $firstVal = $a[0]
+    $nextVal
+    $firstScoreType
+    $nextScoreType
+
+    if($firstVal.obj.grossScore -eq $firstVal.obj.netScore) {
+        $firstScoreType = 'both'
+
+    }elseif($firstVal.value -eq $firstVal.obj.grossScore) {
+        $firstScoreType = 'grossScore'
+    }
+    else {
+        $firstScoreType = 'netScore'
+    }
+
+    for($i = 1; $i -lt $a.length; $i++) {
+        
+        if(($a[$i].obj.FirstName -eq $firstVal.obj.FirstName) -and ($a[$i].obj.LastName -eq $firstVal.obj.LastName)) {
+            continue
+        }
+
+        if($a[$i].obj.grossScore -eq $a[$i].obj.netScore) {
+            $nextScoreType = 'both'
+        }
+        elseif($a[$i].value -eq $a[$i].obj.grossScore) {
+            $nextScoreType = 'grossScore'
+        }
+        else {
+            $nextScoreType = 'netScore'
+        }
+
+        if(($nextScoreType -eq 'both') -or ($firstScoreType -ne $nextScoreType)) {
+            $nextVal = $a[$i]
+            break
+        }
+    } 
+
+    return $firstVal.obj, $nextVal.obj
 }
 
 #--- Main -----------------------------------------------------------------------------
@@ -77,7 +124,7 @@ foreach($g in $golferRecord) {
     }
 }
 
-$hl = 15
+#$hl = 1
 $tm = 'B'
 getBestScore -sTable $scoreTable -team $tm -hole $hl
 '--------------'
