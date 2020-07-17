@@ -13,7 +13,6 @@ Import-Module -FullyQualifiedName $Script:modulePath -Force
 
 #--- Functions ------------------------------------------------------------------------
 function getBlindDraw {
-    [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]
         [System.Object]
@@ -29,6 +28,38 @@ function getBlindDraw {
     # $drawSet[$i].LastName += '_bd'
     $drawSet[$i].Team = $team
     return $drawSet[$i]
+}
+
+function getBestScore {
+    param (
+        [Parameter(Mandatory=$true)]
+        [System.Object]
+        $sTable,
+        [Parameter(Mandatory=$true)]
+        [System.String]
+        $team,
+        [Parameter(Mandatory=$true)]
+        [System.Int32]
+        $hole
+    )
+
+    $grossScore = $sTable | Where-Object -Property Team -EQ $team | Where-Object -Property holeNumber -EQ $hole | Sort-Object -Property grossScore
+    $netScore = $sTable | Where-Object -Property Team -EQ $team | Where-Object -Property holeNumber -EQ $hole | Sort-Object -Property netScore
+
+    $gs = $grossScore[0]
+    $ns = $netScore[0]
+
+    # if($gs -eq $ns) {
+    #     $gs = $grossScore[1]
+    # }
+
+    # if(($gs.grossScore + $ns.netScore) -gt ($gs.netScore + $ns.grossScore)) {
+    #     $tmp = $gs
+    #     $gs = $ns
+    #     $ns = $tmp
+    # }
+
+    return $gs, $ns
 }
 
 #--- Main -----------------------------------------------------------------------------
@@ -54,4 +85,8 @@ foreach($g in $golferRecord) {
     }
 }
 
-$scoreTable
+$hl = 16
+$tm = 'B'
+getBestScore -sTable $scoreTable -team $tm -hole $hl
+'--------------'
+$scoreTable | Where-Object -Property Team -EQ $tm | Where-Object -Property holeNumber -EQ $hl 
