@@ -1,12 +1,12 @@
 #
 # This is the One Gross One Net score script
 #
-# [CmdletBinding()]
-# param (
-#     [Parameter(Mandatory)]
-#     [System.Int32]
-#     $hl
-# )
+param (
+    [Parameter(Mandatory)]
+    [string]
+    [ValidateSet('finalResults', 'scoreTable')]
+    $ReportType
+)
 
 
 #--- Setup ----------------------------------------------------------------------------
@@ -21,68 +21,50 @@ Import-Module -FullyQualifiedName $Script:modulePath -Force
 #--- Classes --------------------------------------------------------------------------
 
 class gameReport {
-    [int]$Score_1
-    [string]$Winner_1
+    [string]$hole_1
 
-    [int]$Score_2
-    [string]$Winner_2
+    [string]$hole_2
 
-    [int]$Score_3
-    [string]$Winner_3
+    [string]$hole_3
 
-    [int]$Score_4
-    [string]$Winner_4
+    [string]$hole_4
 
-    [int]$Score_5
-    [string]$Winner_5
+    [string]$hole_5
 
-    [int]$Score_6
-    [string]$Winner_6
+    [string]$hole_6
 
-    [int]$Score_7
-    [string]$Winner_7
+    [string]$hole_7
 
-    [int]$Score_8
-    [string]$Winner_8
+    [string]$hole_8
 
-    [int]$Score_9
-    [string]$Winner_9
+    [string]$hole_9
 
-    [int]$Score_10
-    [string]$Winner_10
+    [string]$hole_10
 
-    [int]$Score_11
-    [string]$Winner_11
+    [string]$hole_11
 
-    [int]$Score_12
-    [string]$Winner_12
+    [string]$hole_12
 
-    [int]$Score_13
-    [string]$Winner_13
+    [string]$hole_13
 
-    [int]$Score_14
-    [string]$Winner_14
+    [string]$hole_14
 
-    [int]$Score_15
-    [string]$Winner_15
+    [string]$hole_15
 
-    [int]$Score_16
-    [string]$Winner_16
+    [string]$hole_16
 
-    [int]$Score_17
-    [string]$Winner_17
+    [string]$hole_17
 
-    [int]$Score_18
-    [string]$Winner_18
+    [string]$hole_18
 }
 
 #--- Functions ------------------------------------------------------------------------
 function getBlindDraw {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [System.Object]
         $gRecord,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $team
     )
@@ -97,13 +79,13 @@ function getBlindDraw {
 
 function getBestScore {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [System.Object]
         $sTable,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $team,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [System.Int32]
         $hole
     )
@@ -112,8 +94,8 @@ function getBestScore {
     $a = @()
 
     foreach ($i in $testTable) {
-        $a += New-Object -TypeName psobject -Property @{'value' = $i.grossScore; 'obj' = $i}
-        $a += New-Object -TypeName psobject -Property @{'value' = $i.netScore; 'obj' = $i}
+        $a += New-Object -TypeName psobject -Property @{'value' = $i.grossScore; 'obj' = $i }
+        $a += New-Object -TypeName psobject -Property @{'value' = $i.netScore; 'obj' = $i }
     }
 
     $a = $a | Sort-Object -Property value
@@ -124,39 +106,40 @@ function getBestScore {
     $firstScoreType
     $nextScoreType
 
-    if($firstVal.obj.grossScore -eq $firstVal.obj.netScore) {
+    if ($firstVal.obj.grossScore -eq $firstVal.obj.netScore) {
         $firstScoreType = 'either'
 
-    }elseif($firstVal.value -eq $firstVal.obj.grossScore) {
+    }
+    elseif ($firstVal.value -eq $firstVal.obj.grossScore) {
         $firstScoreType = 'grossScore'
     }
     else {
         $firstScoreType = 'netScore'
     }
 
-    for($i = 1; $i -lt $a.length; $i++) {
+    for ($i = 1; $i -lt $a.length; $i++) {
         
-        if(($a[$i].obj.FirstName -eq $firstVal.obj.FirstName) -and ($a[$i].obj.LastName -eq $firstVal.obj.LastName)) {
+        if (($a[$i].obj.FirstName -eq $firstVal.obj.FirstName) -and ($a[$i].obj.LastName -eq $firstVal.obj.LastName)) {
             continue
         }
 
-        if($a[$i].obj.grossScore -eq $a[$i].obj.netScore) {
+        if ($a[$i].obj.grossScore -eq $a[$i].obj.netScore) {
             $nextScoreType = 'either'
         }
-        elseif($a[$i].value -eq $a[$i].obj.grossScore) {
+        elseif ($a[$i].value -eq $a[$i].obj.grossScore) {
             $nextScoreType = 'grossScore'
         }
         else {
             $nextScoreType = 'netScore'
         }
 
-        if(($nextScoreType -eq 'either') -or ($firstScoreType -ne $nextScoreType)) {
+        if (($nextScoreType -eq 'either') -or ($firstScoreType -ne $nextScoreType)) {
             $nextVal = $a[$i]
             break
         }
     }
 
-    if($nextVal -eq 0) {
+    if ($nextVal -eq 0) {
         $errMsg = "Could not calulate next best score for team $team on hole $hole"
         throw $errMsg
         exit
@@ -175,30 +158,30 @@ $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
 
 $golferRecord = $scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops
 
-foreach( $grp in ($golferRecord | Group-Object -Property Team)) {
-    if($grp.Count -lt 4){
+foreach ( $grp in ($golferRecord | Group-Object -Property Team)) {
+    if ($grp.Count -lt 4) {
         $golferRecord += getBlindDraw -gRecord $golferRecord -team $grp.Name
     }
 }
 
 $scoreTable = @()
-foreach($g in $golferRecord) {
+foreach ($g in $golferRecord) {
     $ggs = Get-GolferGrossScore -ScoreRecord $scoreRecord -FirstName $g.FirstName -LastName $g.LastName
 
     Get-GolferScore -GolferPops $g -GolferGrossScore $ggs | Out-Null
 
-    foreach($h in $g.Holes) {
-        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = {$g.FirstName}}, @{name = 'LastName'; Expression = {$g.LastName}}, @{name = 'Team'; Expression = {$g.Team}}, *, @{name = 'lowScore'; expression = {$null}}, @{name = 'netBirdie'; expression = {$null}}, @{name = 'grossBirdie'; expression = {$null}} 
+    foreach ($h in $g.Holes) {
+        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = { $g.FirstName } }, @{name = 'LastName'; Expression = { $g.LastName } }, @{name = 'Team'; Expression = { $g.Team } }, *, @{name = 'lowScore'; expression = { $null } }, @{name = 'netBirdie'; expression = { $null } }, @{name = 'grossBirdie'; expression = { $null } } 
     }
 }
 
 $resultsTable = @()
 $sum = 0
 
-foreach($t in ($scoreTable | Group-Object -Property Team | ForEach-Object{$_.Name})) {
-    foreach($h in (1..18)) {
+foreach ($t in ($scoreTable | Group-Object -Property Team | ForEach-Object { $_.Name })) {
+    foreach ($h in (1..18)) {
         foreach ($r in (getBestScore -sTable $scoreTable -team $t -hole $h)) {
-            if($r.lowScore -eq 'either') {
+            if ($r.lowScore -eq 'either') {
                 $sum += $r.grossScore
             }
             else {
@@ -206,7 +189,7 @@ foreach($t in ($scoreTable | Group-Object -Property Team | ForEach-Object{$_.Nam
             }
         }
 
-        $resultsTable += New-Object -TypeName psobject -Property @{'Team' = $t; 'Hole' = $h; 'combinedScore' = $sum; 'Winner' = $null}
+        $resultsTable += New-Object -TypeName psobject -Property @{'Team' = $t; 'Hole' = $h; 'combinedScore' = $sum; 'Winner' = $null }
         $sum = 0
     }
 }
@@ -215,46 +198,47 @@ $tie = $false
 $ct = 0
 $finalResults = @()
 
-foreach($h in ($resultsTable | Group-Object -Property Hole)) {
+foreach ($h in ($resultsTable | Group-Object -Property Hole)) {
     
-    if(($h.group | Group-Object -Property combinedScore | Measure-Object).count -eq 1) {
+    if (($h.group | Group-Object -Property combinedScore | Measure-Object).count -eq 1) {
         $tie = $true
     }
     
-    foreach($g in ($h.group | Sort-Object -Property combinedScore)) {
-        if($tie) {
+    foreach ($g in ($h.group | Sort-Object -Property combinedScore)) {
+        if ($tie) {
             $g.winner = 'Tie'
-        }elseif ($ct -eq 0) {
+        }
+        elseif ($ct -eq 0) {
             $g.winner = $g.Team
         }
         
-        $finalResults += $g | Select-Object -Property Hole, Team, combinedScore, Winner, @{name = 'grossBirdies'; expression = {$null}}, @{name = 'netBirdies'; expression = {$null}}
+        $finalResults += $g | Select-Object -Property Hole, Team, combinedScore, Winner, @{name = 'grossBirdies'; expression = { $null } }, @{name = 'netBirdies'; expression = { $null } }
         $ct++
     }
 
-    if($tie) {
+    if ($tie) {
         $tie = $false
     }
     $ct = 0
 }
 
-foreach($s in $scoreTable) {
-    if($s.grossScore -lt $s.par) {
+foreach ($s in $scoreTable) {
+    if ($s.grossScore -lt $s.par) {
         $s.grossBirdie = '*'
     }
 
-    if($s.netScore -lt $s.par) {
+    if ($s.netScore -lt $s.par) {
         $s.netBirdie = '*'
     }
 }
 
-$grossBirdieTable = $scoreTable | Where-Object {$_.grossBirdie} | Group-Object -Property holeNumber, Team -NoElement | Select-Object -Property @{name = 'Hole'; expression = {($_.name -split ',')[0].trim()}}, @{name = 'Team'; expression = {($_.name -split ',')[-1].trim()}}, Count
-$netBirdieTable = $scoreTable | Where-Object {$_.netBirdie} | Group-Object -Property holeNumber, Team -NoElement | Select-Object -Property @{name = 'Hole'; expression = {($_.name -split ',')[0].trim()}}, @{name = 'Team'; expression = {($_.name -split ',')[-1].trim()}}, Count
+$grossBirdieTable = $scoreTable | Where-Object { $_.grossBirdie } | Group-Object -Property holeNumber, Team -NoElement | Select-Object -Property @{name = 'Hole'; expression = { ($_.name -split ',')[0].trim() } }, @{name = 'Team'; expression = { ($_.name -split ',')[-1].trim() } }, Count
+$netBirdieTable = $scoreTable | Where-Object { $_.netBirdie } | Group-Object -Property holeNumber, Team -NoElement | Select-Object -Property @{name = 'Hole'; expression = { ($_.name -split ',')[0].trim() } }, @{name = 'Team'; expression = { ($_.name -split ',')[-1].trim() } }, Count
 
-foreach($r in $finalResults){
+foreach ($r in $finalResults) {
     $c = $null
     $c = ($grossBirdieTable | Where-Object -Property Hole -EQ $r.Hole | Where-Object -Property Team -EQ $r.Team).Count
-    if($c) {
+    if ($c) {
         $r.grossBirdies = $c    
     }
     else {
@@ -263,7 +247,7 @@ foreach($r in $finalResults){
 
     $c = $null
     $c = ($netBirdieTable | Where-Object -Property Hole -EQ $r.Hole | Where-Object -Property Team -EQ $r.Team).Count
-    if($c) {
+    if ($c) {
         $r.netBirdies = $c    
     }
     else {
@@ -273,17 +257,38 @@ foreach($r in $finalResults){
 
 $gameReport = @{}
 
-foreach($r in $finalResults) {
-    if( -not $gameReport.ContainsKey($r.Team)){
+foreach ($r in $finalResults) {
+    if ( -not $gameReport.ContainsKey($r.Team)) {
         $gameReport[$r.Team] = [gameReport]::new()
     }
-    $propName = 'Score_' + $r.Hole
-    $gameReport[$r.Team].$propName = $r.combinedScore
+    $propName = 'hole_' + $r.Hole
 
-    $propName = 'Winner_' + $r.Hole
-    $gameReport[$r.Team].$propName = $r.Winner
+    $gameReport[$r.Team].$propName = [string]$r.combinedScore
+    
+    if ($r.Winner) {
+        if ($r.Winner -ne 'Tie' -and ($r.Winner -ne 'Tie')) {
+            $gameReport[$r.Team].$propName += '*'
+        }
+        else {
+            $carry++
+        }
+    }
 }
 
-foreach($k in ($gameReport.Keys | Sort-Object)) {
-    $gameReport[$k] | Select-Object -Property @{Name = 'Team'; Expression = {$k}}, *
+# foreach ($k in ($gameReport.Keys | Sort-Object)) {
+#     $gameReport[$k] | Select-Object -Property @{Name = 'Team'; Expression = { $k } }, *
+# }
+
+#$finalResults
+
+# $finalResults | Group-Object -Property Hole, Team, grossBirdies | %{$_.group; ''}
+
+#$resultsTable
+if ($ReportType -eq 'finalResults') {
+
+    $finalResults | Sort-Object -Property hole |  Format-Table -GroupBy hole
 }
+elseif ($ReportType -eq 'scoreTable') {
+    $scoreTable | Format-Table -GroupBy LastName
+}
+
