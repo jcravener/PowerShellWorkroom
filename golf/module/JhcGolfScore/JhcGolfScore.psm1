@@ -141,8 +141,11 @@ function Get-GolferCourseHc {
         $Index,
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [string]
+        $Team,
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [string]
         $CourseName,
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "valuePropery")]
         [string]
         $TeeLocation,
         [Parameter(Mandatory = $true, ValueFromPipeline, ParameterSetName = "valueObject")]
@@ -188,6 +191,9 @@ function Get-GolferCourseHc {
             $rt = [golfer]::new($FirstName, $LastName, $GolferType, $Index)
             $rt.CourseName = $CourseName
             $rt.TeeLocation = $TeeLocation
+            if($Team) {
+                $rt.Team = $Team
+            }
 
             if ($GolferType -eq 'man') {
                 $t = $sc.ratingAndSlope | Where-Object -Property type -EQ 'Men' | Where-Object -Property teeLocation -EQ $TeeLocation
