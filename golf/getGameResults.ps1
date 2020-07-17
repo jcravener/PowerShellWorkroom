@@ -25,8 +25,8 @@ function getBlindDraw {
 
     $drawSet = $gRecord | Where-Object -Property Team -NE $team | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json
     $i = Get-Random -Minimum 0 -Maximum ($drawSet.length)
-    $drawSet[$i].FirstName += '_bd'
-    $drawSet[$i].LastName += '_bd'
+    # $drawSet[$i].FirstName += '_bd'
+    # $drawSet[$i].LastName += '_bd'
     $drawSet[$i].Team = $team
     return $drawSet[$i]
 }
@@ -36,6 +36,12 @@ function getBlindDraw {
 $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
 
 $golferRecord = $scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops
+
+foreach( $grp in ($golferRecord | Group-Object -Property Team)) {
+    if($grp.Count -lt 4){
+        $golferRecord += getBlindDraw -gRecord $golferRecord -team $grp.Name
+    }
+}
 
 $scoreTable = @()
 foreach($g in $golferRecord) {
@@ -48,8 +54,4 @@ foreach($g in $golferRecord) {
     }
 }
 
-foreach( $grp in ($golferRecord | Group-Object -Property Team)) {
-    if($grp.Count -lt 4){
-        getBlindDraw -gRecord $golferRecord -team $grp.Name
-    }
-}
+$scoreTable
