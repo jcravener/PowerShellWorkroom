@@ -1,12 +1,12 @@
 #
 # This is the One Gross One Net score script
 #
-[CmdletBinding()]
-param (
-    [Parameter(Mandatory)]
-    [System.Int32]
-    $hl
-)
+# [CmdletBinding()]
+# param (
+#     [Parameter(Mandatory)]
+#     [System.Int32]
+#     $hl
+# )
 
 
 #--- Setup ----------------------------------------------------------------------------
@@ -130,15 +130,71 @@ foreach($g in $golferRecord) {
     Get-GolferScore -GolferPops $g -GolferGrossScore $ggs | Out-Null
 
     foreach($h in $g.Holes) {
-        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = {$g.FirstName}}, @{name = 'LastName'; Expression = {$g.LastName}}, @{name = 'Team'; Expression = {$g.Team}}, *, @{name = 'winningScore'; expression = {$null}} 
+        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = {$g.FirstName}}, @{name = 'LastName'; Expression = {$g.LastName}}, @{name = 'Team'; Expression = {$g.Team}}, *, @{name = 'winningScore'; expression = {$null}}, @{name = 'netBirdie'; expression = {$null}}, @{name = 'grossBirdie'; expression = {$null}} 
     }
 }
 
-# $scoreTable
-# exit
+$resultsTable = @()
+$sum = 0
 
-#$hl = 1
-$tm = 'B'
-getBestScore -sTable $scoreTable -team $tm -hole $hl
-'--------------'
-$scoreTable | Where-Object -Property Team -EQ $tm | Where-Object -Property holeNumber -EQ $hl 
+foreach($t in ($scoreTable | Group-Object -Property Team | ForEach-Object{$_.Name})) {
+    foreach($h in (1..18)) {
+        foreach ($r in (getBestScore -sTable $scoreTable -team $t -hole $h)) {
+            if($r.winningScore -eq 'either') {
+                $sum += $r.grossScore
+            }
+            else {
+                $sum += $r.($r.winningScore)
+            }
+        }
+
+        $resultsTable += New-Object -TypeName psobject -Property @{'Team' = $t; 'Hole' = $h; 'combinedScore' = $sum; 'Winner' = $null}
+        $sum = 0
+    }
+}
+
+$tie = $false
+$ct = 0
+$finalResults = @()
+
+foreach($h in ($resultsTable | Group-Object -Property Hole)) {
+    
+    if(($h.group | Group-Object -Property combinedScore | Measure-Object).count -eq 1) {
+        $tie = $true
+    }
+    
+    foreach($g in ($h.group | Sort-Object -Property combinedScore)) {
+        if($tie) {
+            $g.winner = 'Tie'
+        }elseif ($ct -eq 0) {
+            $g.winner = $g.Team
+        }
+        
+        $finalResults += $g | Select-Object -Property Hole, Team, combinedScore, Winner
+        $ct++
+    }
+
+    if($tie) {
+        $tie = $false
+    }
+    $ct = 0
+}
+
+foreach($s in $scoreTable) {
+
+}
+
+#$finalResults
+#$scoreTable | Group-Object -Property Team, holeNumber | % group | Select-Object -ExcludeProperty equitableScore
+
+foreach($s in $scoreTable) {
+    if($s.grossScore -lt $s.par) {
+        $s.grossBirdie = '*'
+    }
+
+    if($s.netScore -lt $s.par) {
+        $s.netBirdie = '*'
+    }
+}
+
+$scoreTable | Sort-Object -Property Team, holeNumber | Select-Object -Property *Name, Team, holeNumber, par, popCount, grossScore, netScore, netBirdie, grossBirdie, winningScore
