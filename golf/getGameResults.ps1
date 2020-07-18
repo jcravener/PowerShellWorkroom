@@ -4,8 +4,11 @@
 param (
     [Parameter(Mandatory)]
     [string]
-    [ValidateSet('finalResults', 'scoreTable')]
-    $ReportType
+    [ValidateSet('finalResults', 'scoreTable', 'golferScores')]
+    $ReportType,
+    [Parameter(Mandatory = $false)]
+    [switch]
+    $rawOutput = $false
 )
 
 
@@ -74,6 +77,7 @@ function getBlindDraw {
     # $drawSet[$i].FirstName += '_bd'
     # $drawSet[$i].LastName += '_bd'
     $drawSet[$i].Team = $team
+    $drawSet[$i].blindDraw = $true
     return $drawSet[$i]
 }
 
@@ -154,24 +158,32 @@ function getBestScore {
 
 #--- Main -----------------------------------------------------------------------------
 
+#--read in score card records
 $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
 
-$golferRecord = $scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops
+#--read in golfer's score cards
+$golferRecord = $scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops | Add-Member -PassThru -MemberType NoteProperty -Name blindDraw -Value $null
 
+#---add blind draws
 foreach ( $grp in ($golferRecord | Group-Object -Property Team)) {
     if ($grp.Count -lt 4) {
         $golferRecord += getBlindDraw -gRecord $golferRecord -team $grp.Name
     }
 }
 
+#---build score table
 $scoreTable = @()
 foreach ($g in $golferRecord) {
     $ggs = Get-GolferGrossScore -ScoreRecord $scoreRecord -FirstName $g.FirstName -LastName $g.LastName
 
     Get-GolferScore -GolferPops $g -GolferGrossScore $ggs | Out-Null
 
+    if ($g.blindDraw) {
+        $guid = [guid]::NewGuid().Guid -split '-'
+    }
+
     foreach ($h in $g.Holes) {
-        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = { $g.FirstName } }, @{name = 'LastName'; Expression = { $g.LastName } }, @{name = 'Team'; Expression = { $g.Team } }, *, @{name = 'lowScore'; expression = { $null } }, @{name = 'netBirdie'; expression = { $null } }, @{name = 'grossBirdie'; expression = { $null } } 
+        $scoreTable += $h | Select-Object -Property @{name = 'FirstName'; Expression = { if ($g.blindDraw) { $guid[1] }else { $g.FirstName } } }, @{name = 'LastName'; Expression = { if ($g.blindDraw) { $guid[0] }else { $g.LastName } } }, @{name = 'Team'; Expression = { $g.Team } }, *, @{name = 'lowScore'; expression = { $null } }, @{name = 'netBirdie'; expression = { $null } }, @{name = 'grossBirdie'; expression = { $null } } 
     }
 }
 
@@ -275,20 +287,60 @@ foreach ($r in $finalResults) {
     }
 }
 
-# foreach ($k in ($gameReport.Keys | Sort-Object)) {
-#     $gameReport[$k] | Select-Object -Property @{Name = 'Team'; Expression = { $k } }, *
-# }
-
-#$finalResults
-
-# $finalResults | Group-Object -Property Hole, Team, grossBirdies | %{$_.group; ''}
-
-#$resultsTable
+$report = @()
 if ($ReportType -eq 'finalResults') {
-
-    $finalResults | Sort-Object -Property hole |  Format-Table -GroupBy hole
+    if ($rawOutput) {
+        $finalResults
+    }
+    else {
+        $finalResults | Sort-Object -Property hole |  Format-Table -GroupBy hole -Property *
+    }
 }
 elseif ($ReportType -eq 'scoreTable') {
-    $scoreTable | Format-Table -GroupBy LastName
+    if ($rawOutput) {
+        $scoreTable
+    }
+    else {
+        $scoreTable | Format-Table -GroupBy LastName -Property *
+    }
 }
+elseif ($ReportType -eq 'golferScores') {
+    foreach ($g in ($scoreTable | Group-Object -Property LastName, FirstName)) {
+        $n = $g.name
+        $es = ($g.group | Measure-Object -Property equitableScore -Sum).Sum
+        $gs = ($g.group | Measure-Object -Property grossScore -Sum).Sum
+        $ns = ($g.group | Measure-Object -Property netScore -Sum).Sum
+        $pc = ($g.group | Measure-Object -Property popCount -Sum).Sum
+        $p = ($g.group | Measure-Object -Property par -Sum).Sum
+
+        $report = New-Object -TypeName psobject -Property @{'Name' = $n; 'equitableScore' = $es; 'equitableToPar' = ($es - $p); 'grossScore' = $gs; 'netScore' = $ns; 'pops' = $pc }
+
+        if ($rawOutput) {
+            $report
+        }
+        else {
+            $report | Format-Table -GroupBy Name -Property Name, grossScore, equitableScore, equitableToPar, pops, netScore
+        }
+    }
+}
+# else {
+#     foreach ( $grp in ($scoreTable | Group-Object -Property FirstName, LastName)) {
+        
+#         if ($grp.count -eq 18) {
+#             foreach ($g in $grp.group) {
+#                 $est = ($g | Measure-Object -Property equitableScore -Sum).Sum  
+#                 $est
+#             }
+#         }
+        
+#         # foreach($g in ($grp.group )) {
+#         #     $est = ($g | Measure-Object -Property equitableScore -Sum).Sum
+#         #     $gst = ($g | Measure-Object -Property grossScore -Sum).Sum
+#         #     $nst = ($g | Measure-Object -Property netScore -Sum).Sum
+    
+#         #     New-Object -TypeName psobject -Property @{'Name' = $grp.Name; 'equitableScoreTotal' = $est; 'grossScoreTotal' = $gst; 'netScoreTotal' = $nst}
+#         # }
+#     }
+# }
+
 
