@@ -161,6 +161,12 @@ function getBestScore {
 #--read in score card records
 $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
 
+if($scoreRecord | Group-Object -Property Team | Where-Object -Property Count -lt 4) {
+    $errMsg = "Not all teams have 4 players.  Add blind draw to score record CSV."
+    Write-Warning -message $errMsg
+    return
+}
+
 #--read in golfer's score cards
 $golferRecord = $scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops | Add-Member -PassThru -MemberType NoteProperty -Name blindDraw -Value $null
 
