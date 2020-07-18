@@ -164,12 +164,12 @@ $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
 #--read in golfer's score cards
 $golferRecord = $scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops | Add-Member -PassThru -MemberType NoteProperty -Name blindDraw -Value $null
 
-#---add blind draws
-foreach ( $grp in ($golferRecord | Group-Object -Property Team)) {
-    if ($grp.Count -lt 4) {
-        $golferRecord += getBlindDraw -gRecord $golferRecord -team $grp.Name
-    }
-}
+#---add blind draws -- commenting out because they are not persistent -- need to add this functionality
+# foreach ( $grp in ($golferRecord | Group-Object -Property Team)) {
+#     if ($grp.Count -lt 4) {
+#         $golferRecord += getBlindDraw -gRecord $golferRecord -team $grp.Name
+#     }
+# }
 
 #---build score table
 $scoreTable = @()
@@ -312,35 +312,15 @@ elseif ($ReportType -eq 'golferScores') {
         $ns = ($g.group | Measure-Object -Property netScore -Sum).Sum
         $pc = ($g.group | Measure-Object -Property popCount -Sum).Sum
         $p = ($g.group | Measure-Object -Property par -Sum).Sum
+        $gb = ($g.group | Where-Object -Property grossBirdie -EQ '*' | Measure-Object).Count
 
-        $report = New-Object -TypeName psobject -Property @{'Name' = $n; 'equitableScore' = $es; 'equitableToPar' = ($es - $p); 'grossScore' = $gs; 'netScore' = $ns; 'pops' = $pc }
+        $report = New-Object -TypeName psobject -Property @{'Name' = $n; 'equitableScore' = $es; 'equitableToPar' = ($es - $p); 'grossScore' = $gs; 'grossBirdies' = $gb; 'netScore' = $ns; 'pops' = $pc }
 
         if ($rawOutput) {
             $report
         }
         else {
-            $report | Format-Table -GroupBy Name -Property Name, grossScore, equitableScore, equitableToPar, pops, netScore
+            $report | Format-Table -GroupBy Name -Property Name, grossScore, equitableScore, equitableToPar, grossBirdies, pops, netScore
         }
     }
 }
-# else {
-#     foreach ( $grp in ($scoreTable | Group-Object -Property FirstName, LastName)) {
-        
-#         if ($grp.count -eq 18) {
-#             foreach ($g in $grp.group) {
-#                 $est = ($g | Measure-Object -Property equitableScore -Sum).Sum  
-#                 $est
-#             }
-#         }
-        
-#         # foreach($g in ($grp.group )) {
-#         #     $est = ($g | Measure-Object -Property equitableScore -Sum).Sum
-#         #     $gst = ($g | Measure-Object -Property grossScore -Sum).Sum
-#         #     $nst = ($g | Measure-Object -Property netScore -Sum).Sum
-    
-#         #     New-Object -TypeName psobject -Property @{'Name' = $grp.Name; 'equitableScoreTotal' = $est; 'grossScoreTotal' = $gst; 'netScoreTotal' = $nst}
-#         # }
-#     }
-# }
-
-
