@@ -24,24 +24,26 @@ function getNodes {
 
     $t = $job.GetType()
     $ct = 0
+    $h = @{}
 
     if($t.Name -eq 'PSCustomObject') {
         foreach($m in Get-Member -InputObject $job -MemberType NoteProperty) {
-            #$path = $path + '.' + $m.Name
             getNodes -job $job.($m.Name) -path ($path + '.' + $m.Name)
         }
         
     }elseif ($t.Name -eq 'Object[]') {
         foreach($o in $job) {
-            #$path += '[i]'
             getNodes -job $o -path ($path + "[$ct]")
             $ct++
-            #$path = ''
         }
-    }
+    }$
     else {
-        "$path $job"
-        $path = ''
+        $h[$path] = $job
+        $h
     }
 }
-getNodes -job $obj -path 'root'
+
+$table = getNodes -job $obj -path 'root'
+
+$table
+
