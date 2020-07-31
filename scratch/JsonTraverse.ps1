@@ -36,7 +36,7 @@ function getNodes {
             getNodes -job $o -path ($path + "[$ct]")
             $ct++
         }
-    }$
+    }
     else {
         $h[$path] = $job
         $h
@@ -44,6 +44,13 @@ function getNodes {
 }
 
 $table = getNodes -job $obj -path 'root'
+$ht = @{}
 
-$table
+foreach($i in $table) {
+    foreach($k in $i.keys) {
+        $ht[$k] = $i[$k]
+    }
+}
+
+$ht
 
