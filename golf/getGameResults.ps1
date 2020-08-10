@@ -207,7 +207,8 @@ foreach ($t in ($scoreTable | Group-Object -Property Team | ForEach-Object { $_.
             }
         }
 
-        $resultsTable += New-Object -TypeName psobject -Property @{'Team' = $t; 'Hole' = $h; 'combinedScore' = $sum; 'Winner' = $null }
+        # $resultsTable += New-Object -TypeName psobject -Property @{'Team' = $t; 'Hole' = $h; 'combinedScore' = $sum; 'Winner' = $null }
+        $resultsTable += New-Object -TypeName psobject -Property @{'Team' = $t; 'Hole' = $h; 'combinedScore' = $sum; }
         $sum = 0
     }
 }
@@ -218,26 +219,27 @@ $finalResults = @()
 
 foreach ($h in ($resultsTable | Group-Object -Property Hole)) {
     
-    if (($h.group | Group-Object -Property combinedScore | Measure-Object).count -eq 1) {
-        $tie = $true
-    }
+    # if (($h.group | Group-Object -Property combinedScore | Measure-Object).count -eq 1) {
+    #     $tie = $true
+    # }
     
     foreach ($g in ($h.group | Sort-Object -Property combinedScore)) {
-        if ($tie) {
-            $g.winner = 'Tie'
-        }
-        elseif ($ct -eq 0) {
-            $g.winner = $g.Team
-        }
+        # if ($tie) {
+        #     $g.winner = 'Tie'
+        # }
+        # elseif ($ct -eq 0) {
+        #     $g.winner = $g.Team
+        # }
         
-        $finalResults += $g | Select-Object -Property Hole, Team, combinedScore, Winner, @{name = 'grossBirdies'; expression = { $null } }, @{name = 'netBirdies'; expression = { $null } }
-        $ct++
+        # $finalResults += $g | Select-Object -Property Hole, Team, combinedScore, Winner, @{name = 'grossBirdies'; expression = { $null } }, @{name = 'netBirdies'; expression = { $null } }
+        $finalResults += $g | Select-Object -Property Hole, Team, combinedScore, @{name = 'grossBirdies'; expression = { $null } }, @{name = 'netBirdies'; expression = { $null } }
+        # $ct++
     }
 
-    if ($tie) {
-        $tie = $false
-    }
-    $ct = 0
+    # if ($tie) {
+    #     $tie = $false
+    # }
+    # $ct = 0
 }
 
 foreach ($s in $scoreTable) {
@@ -283,14 +285,14 @@ foreach ($r in $finalResults) {
 
     $gameReport[$r.Team].$propName = [string]$r.combinedScore
     
-    if ($r.Winner) {
-        if ($r.Winner -ne 'Tie' -and ($r.Winner -ne 'Tie')) {
-            $gameReport[$r.Team].$propName += '*'
-        }
-        else {
-            $carry++
-        }
-    }
+    # if ($r.Winner) {
+    #     if ($r.Winner -ne 'Tie' -and ($r.Winner -ne 'Tie')) {
+    #         $gameReport[$r.Team].$propName += '*'
+    #     }
+    #     else {
+    #         $carry++
+    #     }
+    # }
 }
 
 $report = @()
@@ -299,7 +301,7 @@ if ($ReportType -eq 'finalResults') {
         $finalResults
     }
     else {
-        $finalResults | Sort-Object -Property hole |  Format-Table -GroupBy hole -Property *
+        $finalResults | Sort-Object -Property hole, combinedScore | Format-Table -GroupBy hole -Property * 
     }
 }
 elseif ($ReportType -eq 'scoreTable') {
