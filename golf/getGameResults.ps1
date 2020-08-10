@@ -25,39 +25,22 @@ Import-Module -FullyQualifiedName $Script:modulePath -Force
 
 class gameReport {
     [string]$hole_1
-
     [string]$hole_2
-
     [string]$hole_3
-
     [string]$hole_4
-
     [string]$hole_5
-
     [string]$hole_6
-
     [string]$hole_7
-
     [string]$hole_8
-
     [string]$hole_9
-
     [string]$hole_10
-
     [string]$hole_11
-
     [string]$hole_12
-
     [string]$hole_13
-
     [string]$hole_14
-
     [string]$hole_15
-
     [string]$hole_16
-
     [string]$hole_17
-
     [string]$hole_18
 }
 
@@ -161,6 +144,9 @@ function getBestScore {
 #--read in score card records
 $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
 
+$scoreRecord | Group-Object -Property Team | Where-Object -Property Count -NE 4 | ForEach-Object { $errMsg = "Team $($_.Name) only has $($_.Count) players."; Write-Warning -Message $errMsg }
+exit
+
 if($scoreRecord | Group-Object -Property Team | Where-Object -Property Count -lt 4) {
     $errMsg = "Not all teams have 4 players.  Add blind draw to score record CSV."
     Write-Warning -message $errMsg
@@ -176,6 +162,10 @@ $golferRecord = $scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops 
 #         $golferRecord += getBlindDraw -gRecord $golferRecord -team $grp.Name
 #     }
 # }
+# $scoreRecord
+# '-' * 100
+# $golferRecord
+exit
 
 #---build score table
 $scoreTable = @()
@@ -213,8 +203,8 @@ foreach ($t in ($scoreTable | Group-Object -Property Team | ForEach-Object { $_.
     }
 }
 
-$tie = $false
-$ct = 0
+# $tie = $false
+# $ct = 0
 $finalResults = @()
 
 foreach ($h in ($resultsTable | Group-Object -Property Hole)) {
@@ -242,6 +232,8 @@ foreach ($h in ($resultsTable | Group-Object -Property Hole)) {
     # $ct = 0
 }
 
+#--- NEED TO FIX THIS LOGIC --- a player should not have a net birdie along with a gross one - also need to account for eagles, etc.
+#
 foreach ($s in $scoreTable) {
     if ($s.grossScore -lt $s.par) {
         $s.grossBirdie = '*'
