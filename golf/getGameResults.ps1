@@ -140,14 +140,48 @@ function getBestScore {
 }
 
 #--- Main -----------------------------------------------------------------------------
+$needBlindDraw = $true
+$tm = $null
+
+while ($needBlindDraw) {
+    #--read in score card records
+    $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
+    $grp = $scoreRecord | Group-Object -Property Team
+
+    if($tm = $grp | Where-Object -Property Count -LT 4) {
+        foreach($t in $tm){
+            $errMsg = "Team $($t.Name) only has $($t.Count) players. Adding blind draw."
+            Write-Warning -Message $errMsg
+            
+            #---add blind draw to score record, write it to disk and then either:
+            #   bail out of this loop to let the while loop read in the new score record csv and evaluate again.
+            #   or
+            #   add additional blind draws instead of bailing.  not sure which is best yet and need to give it more thought.
+            
+            exit
+        }
+    }
+    else {
+        $needBlindDraw = $false
+    }
+}
+
+exit
 
 #--read in score card records
 $scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
+$grp = $scoreRecord | Group-Object -Property Team
 
-$scoreRecord | Group-Object -Property Team | Where-Object -Property Count -NE 4 | ForEach-Object { $errMsg = "Team $($_.Name) only has $($_.Count) players."; Write-Warning -Message $errMsg }
+foreach ($g in $grp) {
+    if ($g.Count -lt 4) {
+        $errMsg = "Team $($g.Name) only has $($g.Count) players. Adding blind draw."
+        Write-Warning -Message $errMsg
+    }
+}
+
 exit
 
-if($scoreRecord | Group-Object -Property Team | Where-Object -Property Count -lt 4) {
+if ($scoreRecord | Group-Object -Property Team | Where-Object -Property Count -lt 4) {
     $errMsg = "Not all teams have 4 players.  Add blind draw to score record CSV."
     Write-Warning -message $errMsg
     return
