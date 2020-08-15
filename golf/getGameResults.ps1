@@ -49,19 +49,23 @@ function getBlindDraw {
     param (
         [Parameter(Mandatory = $true)]
         [System.Object]
-        $gRecord,
+        $scRecord,
         [Parameter(Mandatory = $true)]
         [System.String]
         $team
     )
 
-    $drawSet = $gRecord | Where-Object -Property Team -NE $team | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json
+    $g = [guid]::NewGuid()
+
+    $drawSet = $scRecord | Where-Object -Property Team -NE $team | ConvertTo-Json -Depth $Script:jsonDepth | ConvertFrom-Json
     $i = Get-Random -Minimum 0 -Maximum ($drawSet.length)
-    # $drawSet[$i].FirstName += '_bd'
-    # $drawSet[$i].LastName += '_bd'
+    # $drawSet[$i].FirstName += '_' + ($g.Guid -split '-')[0]
+    # $drawSet[$i].LastName += '_' +  ($g.Guid -split '-')[-1]
+    $drawSet[$i].FirstName = ($g.Guid -split '-')[0]
+    $drawSet[$i].LastName = ($g.Guid -split '-')[-1]
     $drawSet[$i].Team = $team
-    $drawSet[$i].blindDraw = $true
-    return $drawSet[$i]
+
+    return ($scRecord + $drawSet[$i])
 }
 
 function getBestScore {
@@ -152,6 +156,8 @@ while ($needBlindDraw) {
         foreach($t in $tm){
             $errMsg = "Team $($t.Name) only has $($t.Count) players. Adding blind draw."
             Write-Warning -Message $errMsg
+
+            getBlindDraw -scRecord $scoreRecord -team $t.Name
             
             #---add blind draw to score record, write it to disk and then either:
             #   bail out of this loop to let the while loop read in the new score record csv and evaluate again.
