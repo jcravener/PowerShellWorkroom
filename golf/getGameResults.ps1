@@ -157,14 +157,28 @@ while ($needBlindDraw) {
             $errMsg = "Team $($t.Name) only has $($t.Count) players. Adding blind draw."
             Write-Warning -Message $errMsg
 
-            getBlindDraw -scRecord $scoreRecord -team $t.Name
-            
+            Rename-Item -Path $Script:csvPath -NewName ($Script:csvPath + '.' + (Get-Date).Ticks) -Verbose
+            if(-not $?) {
+                $errMsg = "Had problems renaming file $($Script:csvPath)"
+                throw $errMsg
+                exit
+            }
+
+            getBlindDraw -scRecord $scoreRecord -team $t.Name | Export-Csv -Path $Script:csvPath -Verbose
+            if(-not $?) {
+                $errMsg = "Had problems creating new $($Script:csvPath) file."
+                throw $errMsg
+                exit
+            }
+
+            break
+          
             #---add blind draw to score record, write it to disk and then either:
             #   bail out of this loop to let the while loop read in the new score record csv and evaluate again.
             #   or
             #   add additional blind draws instead of bailing.  not sure which is best yet and need to give it more thought.
             
-            exit
+            # exit
         }
     }
     else {
@@ -172,6 +186,7 @@ while ($needBlindDraw) {
     }
 }
 
+$scoreRecord
 exit
 
 #--read in score card records
