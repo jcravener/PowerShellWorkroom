@@ -157,14 +157,14 @@ while ($needBlindDraw) {
             $errMsg = "Team $($t.Name) only has $($t.Count) players. Adding blind draw."
             Write-Warning -Message $errMsg
 
-            Rename-Item -Path $Script:csvPath -NewName ($Script:csvPath + '.' + (Get-Date).Ticks) -Verbose
+            Rename-Item -Path $Script:csvPath -NewName ($Script:csvPath + '.' + (Get-Date).Ticks)
             if(-not $?) {
                 $errMsg = "Had problems renaming file $($Script:csvPath)"
                 throw $errMsg
                 exit
             }
 
-            getBlindDraw -scRecord $scoreRecord -team $t.Name | Export-Csv -Path $Script:csvPath -Verbose
+            getBlindDraw -scRecord $scoreRecord -team $t.Name | Export-Csv -Path $Script:csvPath
             if(-not $?) {
                 $errMsg = "Had problems creating new $($Script:csvPath) file."
                 throw $errMsg
@@ -172,13 +172,6 @@ while ($needBlindDraw) {
             }
 
             break
-          
-            #---add blind draw to score record, write it to disk and then either:
-            #   bail out of this loop to let the while loop read in the new score record csv and evaluate again.
-            #   or
-            #   add additional blind draws instead of bailing.  not sure which is best yet and need to give it more thought.
-            
-            # exit
         }
     }
     else {
@@ -186,41 +179,8 @@ while ($needBlindDraw) {
     }
 }
 
-$scoreRecord
-exit
-
-#--read in score card records
-$scoreRecord = Get-ScoreRecord -CsvFilePath $Script:csvPath
-$grp = $scoreRecord | Group-Object -Property Team
-
-foreach ($g in $grp) {
-    if ($g.Count -lt 4) {
-        $errMsg = "Team $($g.Name) only has $($g.Count) players. Adding blind draw."
-        Write-Warning -Message $errMsg
-    }
-}
-
-exit
-
-if ($scoreRecord | Group-Object -Property Team | Where-Object -Property Count -lt 4) {
-    $errMsg = "Not all teams have 4 players.  Add blind draw to score record CSV."
-    Write-Warning -message $errMsg
-    return
-}
-
 #--read in golfer's score cards
 $golferRecord = $scoreRecord | New-Golfer | Get-GolferCourseHc | Get-GolferPops | Add-Member -PassThru -MemberType NoteProperty -Name blindDraw -Value $null
-
-#---add blind draws -- commenting out because they are not persistent -- need to add this functionality
-# foreach ( $grp in ($golferRecord | Group-Object -Property Team)) {
-#     if ($grp.Count -lt 4) {
-#         $golferRecord += getBlindDraw -gRecord $golferRecord -team $grp.Name
-#     }
-# }
-# $scoreRecord
-# '-' * 100
-# $golferRecord
-exit
 
 #---build score table
 $scoreTable = @()
