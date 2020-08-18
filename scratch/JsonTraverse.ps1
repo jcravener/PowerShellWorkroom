@@ -1,16 +1,22 @@
 #Requires -version 7.0
 
+#--- param --------------------------------------------------------------------------------------
+
 param (
     [Parameter(Mandatory)]
     [System.String]
     $Path
 )
 
+#--- setup --------------------------------------------------------------------------------------
+
 $obj = Get-Content -Path $Path | ConvertFrom-Json
 if (-not $?) {
     $errMsg = "Had problems reading in $Path"
     throw $errMsg
 }
+
+#--- functions ----------------------------------------------------------------------------------
 
 function getNodes {
     param (
@@ -44,57 +50,33 @@ function getNodes {
     }
 }
 
-function getNodeValue {
+function getJsonTable {
     param (
         [Parameter(Mandatory)]
         [System.Object]
         $job,
         [Parameter(Mandatory)]
         [System.String]
-        $name
+        $rootNode
     )
-    $a = $name -split '\.'
-    $p = $null
-    $cmd = $null
-    $rob = $null
+    $table = getNodes -job $obj -path $rootNode
 
-    if ($a[0] -match '\[') {
-        $a[0] = $a[0] -replace '^.*\[', '['
-        
-        $p =  $a -join '.'
-        $cmd = "`$job" + $p
+    $h = @{}
+    $pat = '^' + $rootNode
+    
+    foreach ($i in $table) {
+        foreach ($k in $i.keys) {
+            $h[$k -replace $pat, ''] = $i[$k]
+        }
     }
-    else {
-        $e = $a.Length - 1
-        $p = $a[1..$e] -join '.'
-        $cmd = "`$job" + '.' + $p
-    }
-    $rob = Invoke-Expression -Command $cmd
-
-    return $rob
+    return $h
 }
 
-$table = getNodes -job $obj -path "rt"
+#--- main ---------------------------------------------------------------------------------------
 
-$ht = @{}
+$ht = getJsonTable -job $obj -rootNode 'rt'
 
-foreach ($i in $table) {
-    foreach ($k in $i.keys) {
-        $ht[$k] = $i[$k]
-    }
+foreach( $k in $ht.Keys) {
+    $cmd = '$obj' + $k
+    Invoke-Expression -Command $cmd
 }
-
-foreach($k in $ht.Keys){
-    getNodeValue -job $obj -name $k
-}
-
-# $ht
-
-# getNode -job $obj -name $($ht.Keys | Select-Object -First 1)
-
-
-# foreach($k in $ht.Keys) {
-#     Write-Verbose -Message $k -Verbose
-#     getNode -job $obj -name $k; ''
-# }
-
