@@ -26,13 +26,14 @@ function getNodes {
     $ct = 0
     $h = @{}
 
-    if($t.Name -eq 'PSCustomObject') {
-        foreach($m in Get-Member -InputObject $job -MemberType NoteProperty) {
+    if ($t.Name -eq 'PSCustomObject') {
+        foreach ($m in Get-Member -InputObject $job -MemberType NoteProperty) {
             getNodes -job $job.($m.Name) -path ($path + '.' + $m.Name)
         }
         
-    }elseif ($t.Name -eq 'Object[]') {
-        foreach($o in $job) {
+    }
+    elseif ($t.Name -eq 'Object[]') {
+        foreach ($o in $job) {
             getNodes -job $o -path ($path + "[$ct]")
             $ct++
         }
@@ -43,7 +44,7 @@ function getNodes {
     }
 }
 
-function getNode {
+function getNodeValue {
     param (
         [Parameter(Mandatory)]
         [System.Object]
@@ -52,34 +53,45 @@ function getNode {
         [System.String]
         $name
     )
-
     $a = $name -split '\.'
+    $p = $null
+    $cmd = $null
+    $rob = $null
 
-    # foreach($i in $a[1..$a.Length]) {
-    #     if($i -match '\['){
-    #         $aa = $i -split '\['
-    #         $ii =  $aa[0]
+    if ($a[0] -match '\[') {
+        $a[0] = $a[0] -replace '^.*\[', '['
+        
+        $p =  $a -join '.'
+        $cmd = "`$job" + $p
+    }
+    else {
+        $e = $a.Length - 1
+        $p = $a[1..$e] -join '.'
+        $cmd = "`$job" + '.' + $p
+    }
+    $rob = Invoke-Expression -Command $cmd
 
-    #         $aa = $aa -split '`]'
-    #         $idx = $aa[0]
-
-    #         return $job.$i[$idx] | ConvertTo-Json -Depth 10
-    #     }
-    # }
-
-    return $a
+    return $rob
 }
 
-$table = getNodes -job $obj -path 'root'
+$table = getNodes -job $obj -path "rt"
+
 $ht = @{}
 
-foreach($i in $table) {
-    foreach($k in $i.keys) {
+foreach ($i in $table) {
+    foreach ($k in $i.keys) {
         $ht[$k] = $i[$k]
     }
 }
 
-$ht
+foreach($k in $ht.Keys){
+    getNodeValue -job $obj -name $k
+}
+
+# $ht
+
+# getNode -job $obj -name $($ht.Keys | Select-Object -First 1)
+
 
 # foreach($k in $ht.Keys) {
 #     Write-Verbose -Message $k -Verbose
