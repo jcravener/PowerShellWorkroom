@@ -43,6 +43,33 @@ function getNodes {
     }
 }
 
+function getNode {
+    param (
+        [Parameter(Mandatory)]
+        [System.Object]
+        $job,
+        [Parameter(Mandatory)]
+        [System.String]
+        $name
+    )
+
+    $a = $name -split '\.'
+
+    # foreach($i in $a[1..$a.Length]) {
+    #     if($i -match '\['){
+    #         $aa = $i -split '\['
+    #         $ii =  $aa[0]
+
+    #         $aa = $aa -split '`]'
+    #         $idx = $aa[0]
+
+    #         return $job.$i[$idx] | ConvertTo-Json -Depth 10
+    #     }
+    # }
+
+    return $a
+}
+
 $table = getNodes -job $obj -path 'root'
 $ht = @{}
 
@@ -53,4 +80,9 @@ foreach($i in $table) {
 }
 
 $ht
+
+# foreach($k in $ht.Keys) {
+#     Write-Verbose -Message $k -Verbose
+#     getNode -job $obj -name $k; ''
+# }
 
