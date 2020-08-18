@@ -545,6 +545,73 @@ function Import-JhcUtilJson {
     end { }
 }
 
+#---helper function for ConvertTo-JhcUtilJsonTable
+#
+function getNodes {
+    param (
+        [Parameter(Mandatory)]
+        [System.Object]
+        $job,
+        [Parameter(Mandatory)]
+        [System.String]
+        $path
+    )
+
+    $t = $job.GetType()
+    $ct = 0
+    $h = @{}
+
+    if ($t.Name -eq 'PSCustomObject') {
+        foreach ($m in Get-Member -InputObject $job -MemberType NoteProperty) {
+            getNodes -job $job.($m.Name) -path ($path + '.' + $m.Name)
+        }
+        
+    }
+    elseif ($t.Name -eq 'Object[]') {
+        foreach ($o in $job) {
+            getNodes -job $o -path ($path + "[$ct]")
+            $ct++
+        }
+    }
+    else {
+        $h[$path] = $job
+        $h
+    }
+}
+
+
+#---flattens a JSON document object into a key value table where keys are proper JSON paths corresponding to their value
+#
+function ConvertTo-JhcUtilJsonTable {
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [System.Object[]]
+        $jsonObj
+    )
+
+    begin {
+        $rootNode = 'root'    
+    }
+    
+    process {
+        foreach ($o in $jsonObj) {
+            $table = getNodes -job $o -path $rootNode
+
+            $h = @{}
+            $pat = '^' + $rootNode
+            
+            foreach ($i in $table) {
+                foreach ($k in $i.keys) {
+                    $h[$k -replace $pat, ''] = $i[$k]
+                }
+            }
+            $h
+        }
+    }
+
+    end{}
+}
+
 #---parses stdout strings into a list of objects
 #
 function Convert-JhcUtilStrToObj {
@@ -594,25 +661,27 @@ function Convert-JhcUtilStrToObj {
     }
 }
 
+#--tests a passed in JSON file against a passes in json schema file
+#
 function Test-JhcUtilJsonFile {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $JsonFile,
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [String]
         $SchemaFile
     )
 
     $j = get-content -Path $JsonFile -Raw
-    if(-not $?) {
+    if (-not $?) {
         $errMsg = "Had problems reading $JsonFile"
         throw $errMsg
         return
     }
 
     $s = get-content -Path $SchemaFile -Raw
-    if(-not $?) {
+    if (-not $?) {
         $errMsg = "Had problems reading $SchemaFile"
         throw $errMsg
         return
@@ -635,4 +704,6 @@ New-Alias -Name Show-JhcFileEncoding -Value Show-JhcUtilFileEncoding
 New-Alias -Name Unprotect-JhcSecureString -Value Unprotect-JhcUtilSecureString
 New-Alias -Name Update-JhcWindowTitle -Value Update-JhcUtilWindowTitle
 New-Alias -Name Test-JhcJsonFile -Value Test-JhcUtilJsonFile
+New-Alias -Name ConvertTo-JhcUtilJsonTable -Value ConvertTo-JhcJsonTable
+
 
