@@ -594,6 +594,33 @@ function Convert-JhcUtilStrToObj {
     }
 }
 
+function Test-JhcUtilJsonFile {
+    param (
+        [Parameter(Mandatory=$true)]
+        [String]
+        $JsonFile,
+        [Parameter(Mandatory=$false)]
+        [String]
+        $SchemaFile
+    )
+
+    $j = get-content -Path $JsonFile -Raw
+    if(-not $?) {
+        $errMsg = "Had problems reading $JsonFile"
+        throw $errMsg
+        return
+    }
+
+    $s = get-content -Path $SchemaFile -Raw
+    if(-not $?) {
+        $errMsg = "Had problems reading $SchemaFile"
+        throw $errMsg
+        return
+    }
+
+    Test-Json -Json $j -Schema $s
+}
+
 #---adding aliases
 New-Alias -Name Convert-JhcStrToObj -Value Convert-JhcUtilStrToObj
 New-Alias -Name Convert-JhcXlsxToCsv -Value Convert-JhcUtilXlsxToCsv
@@ -607,4 +634,5 @@ New-Alias -Name Search-JhcAadUserOrg -Value Search-JhcUtilAadUserOrg
 New-Alias -Name Show-JhcFileEncoding -Value Show-JhcUtilFileEncoding
 New-Alias -Name Unprotect-JhcSecureString -Value Unprotect-JhcUtilSecureString
 New-Alias -Name Update-JhcWindowTitle -Value Update-JhcUtilWindowTitle
+New-Alias -Name Test-JhcJsonFile -Value Test-JhcUtilJsonFile
 
