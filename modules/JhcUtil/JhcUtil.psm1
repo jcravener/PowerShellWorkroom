@@ -2,7 +2,7 @@
 #
 # Collection a variety of useful tools.
 
-#---invokext a scriptblock that has been stored in a clixml file 
+#---invoke a scriptblock that has been stored in a clixml file 
 #
 function Invoke-JhcUtilScriptBlock {
     [CmdletBinding()]
@@ -597,15 +597,19 @@ function ConvertTo-JhcUtilJsonTable {
         foreach ($o in $jsonObj) {
             $table = getNodes -job $o -path $rootNode
 
-            $h = @{}
+            # $h = @{}
+            $a = @()
             $pat = '^' + $rootNode
             
             foreach ($i in $table) {
                 foreach ($k in $i.keys) {
-                    $h[$k -replace $pat, ''] = $i[$k]
+                    # $h[$k -replace $pat, ''] = $i[$k]
+                    $a += New-Object -TypeName psobject -Property @{'Key' = $($k -replace $pat, ''); 'Value' = $i[$k]}
+                    # $h[$k -replace $pat, ''] = $i[$k]
                 }
             }
-            $h
+            # $h
+            $a
         }
     }
 
