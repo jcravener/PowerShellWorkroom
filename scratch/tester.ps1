@@ -60,14 +60,20 @@ function intKeyHashToLists {
         if($obj -and (allKeysDigits -h $obj)) {
             #---do something
             #-- here you return a list based on a recursive call
+
         }
         else {
             #---do something else
             #-- here you return a hash table based on a recursive call
+            $h = @{}
+            foreach($k in $obj.Keys) {
+                $h[$k] = intKeyHashToLists -obj $obj.item($k)
+            }
+            return $h
         }
     }
     elseif (isType -obj $obj -typeName 'Object[]') {
-        #---do something else
+        return ( $obj | ForEach-Object{ intKeyHashToLists -obj $_ } )
     }
     else {
         return $obj
