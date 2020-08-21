@@ -10,6 +10,25 @@ param (
     $h
 )
 
+function isType {
+    param (
+        [Parameter(Mandatory)]
+        [System.Object]
+        $obj,
+        [Parameter(Mandatory)]
+        [ValidateSet('Hashtable','Object[]')]
+        [System.String]
+        $typeName
+    )
+    
+    $t = $obj.GetType()
+
+    if($t.Name -eq $typeName) {
+        return $true
+    }
+    return $false
+}
+
 function allKeysDigits {
     param (
         [Parameter(Mandatory)]
@@ -17,13 +36,13 @@ function allKeysDigits {
         $h
     )
 
-    foreach($k in $h.Keys) {
+    foreach ($k in $h.Keys) {
         
-        if($k -match '^0\d') {
+        if ($k -match '^0\d') {
             return $false
         }
         
-        if($k -notmatch '^\d+$') {
+        if ($k -notmatch '^\d+$') {
             return $false  
         }
     }
@@ -44,18 +63,18 @@ foreach ($k in $h.Keys) {
     $val = $h[$k]
     $k = ($k -replace '\]', '') -replace '\[', '.'
     $bits = $k.split('.')
-    $path = $bits[1..($bits.Count-1)]
+    $path = $bits[1..($bits.Count - 1)]
     # $lastKey = $bits[-1]
 
     $count = 0
     
-    foreach($bit in $path) {
+    foreach ($bit in $path) {
         $count++
-        if($v = $current.item($bit)) {
+        if ($v = $current.item($bit)) {
             $current[$bit] = $v
         }
         else {
-            if($count -eq $path.Count) {
+            if ($count -eq $path.Count) {
                 $current[$bit] = $val
             }
             else {
