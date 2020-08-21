@@ -545,6 +545,124 @@ function Import-JhcUtilJson {
     end { }
 }
 
+#---helper function for ConvertFrom-JhcUtilJsonTable
+#
+function isType {
+    param (
+        [Parameter(Mandatory)]
+        [System.Object]
+        $obj,
+        [Parameter(Mandatory)]
+        [ValidateSet('Hashtable', 'Object[]')]
+        [System.String]
+        $typeName
+    )
+    
+    $t = $obj.GetType()
+
+    if ($t.Name -eq $typeName) {
+        return $true
+    }
+    return $false
+}
+
+function allKeysDigits {
+    param (
+        [Parameter(Mandatory)]
+        [System.Collections.Hashtable]
+        $h
+    )
+
+    foreach ($k in $h.Keys) {
+        
+        if ($k -match '^0\d') {
+            return $false
+        }
+        
+        if ($k -notmatch '^\d+$') {
+            return $false  
+        }
+    }
+    return $true
+}
+
+function intKeyHashToLists {
+    param (
+        [Parameter(Mandatory)]
+        [System.Object]
+        $obj
+    )
+    
+    if (isType -obj $obj -typeName 'Hashtable') {
+        if ($obj -and (allKeysDigits -h $obj)) {
+            $a = @()
+            foreach ($k in ($obj.Keys | Sort-Object) ) {
+                $a += intKeyHashToLists -obj $obj.item($k)
+            }
+            return $a
+        }
+        else {
+            $h = @{}
+            foreach ($k in $obj.Keys) {
+                $h[$k] = intKeyHashToLists -obj $obj.item($k)
+            }
+            return $h
+        }
+    }
+    elseif (isType -obj $obj -typeName 'Object[]') {
+        return ( $obj | ForEach-Object { intKeyHashToLists -obj $_ } )
+    }
+    else {
+        return $obj
+    }
+}
+
+function ConvertFrom-JhcUtilJsonTable {
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [System.Collections.Hashtable]
+        $jsonHashTable
+    )
+    begin {}
+    
+    process {
+        foreach ($h in $jsonHashTable) {
+            
+            $m = @{}
+            foreach ($k in $h.Keys) {
+                $current = $m
+                $val = $h[$k]
+                $k = ($k -replace '\]', '') -replace '\[', '.'
+                $bits = $k.split('.')
+                $path = $bits[1..($bits.Count - 1)]
+
+                $count = 0
+    
+                foreach ($bit in $path) {
+                    $count++
+                    if ($v = $current.item($bit)) {
+                        $current[$bit] = $v
+                    }
+                    else {
+                        if ($count -eq $path.Count) {
+                            $current[$bit] = $val
+                        }
+                        else {
+                            $current[$bit] = @{}
+                        }
+                    }
+                    $current = $current[$bit]
+                }
+            }
+            
+            intKeyHashToLists -obj $m
+            #--python code had a buit about handling root units e.g. {'$empty': '{}'} - need to add that
+        }
+    }
+    
+    end {}
+}
+
 #---helper function for ConvertTo-JhcUtilJsonTable
 #
 function getNodes {
@@ -579,7 +697,6 @@ function getNodes {
     }
 }
 
-
 #---flattens a JSON document object into a key value table where keys are proper JSON paths corresponding to their value
 #
 function ConvertTo-JhcUtilJsonTable {
@@ -589,7 +706,7 @@ function ConvertTo-JhcUtilJsonTable {
         $jsonObj,
         [Parameter(Mandatory = $false)]
         [switch]
-        $outputHashTable = $false
+        $outputObjectTable = $false
     )
 
     begin {
@@ -609,11 +726,11 @@ function ConvertTo-JhcUtilJsonTable {
                 }
             }
             
-            if ($outputHashTable) {
-                $h
+            if ($outputObjectTable) {
+                $h.Keys | ForEach-Object { New-Object -TypeName psobject -Property @{ 'Name' = $_; 'Value' = $h[$_] } } | Select-Object -Property Name, Value
             }
             else {
-                $h.Keys | ForEach-Object {  New-Object -TypeName psobject -Property @{ 'Name' = $_; 'Value' = $h[$_] } } 
+                $h
             }
         }   
     }
@@ -712,6 +829,7 @@ New-Alias -Name Show-JhcFileEncoding -Value Show-JhcUtilFileEncoding
 New-Alias -Name Unprotect-JhcSecureString -Value Unprotect-JhcUtilSecureString
 New-Alias -Name Update-JhcWindowTitle -Value Update-JhcUtilWindowTitle
 New-Alias -Name Test-JhcJsonFile -Value Test-JhcUtilJsonFile
-New-Alias -Name ConvertTo-JhcUtilJsonTable -Value ConvertTo-JhcJsonTable
+New-Alias -Name ConvertTo-JhcJsonTable -Value ConvertTo-JhcUtilJsonTable
+New-Alias -Name ConvertFrom-JhcJsonTable -Value ConvertFrom-JhcUtilJsonTable
 
 
