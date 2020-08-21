@@ -14,12 +14,12 @@ param (
 $m = @{}
 foreach ($k in $h.Keys) {
     $current = $m
+    $val = $h[$k]
     $k = ($k -replace '\]', '') -replace '\[', '.'
     $bits = $k.split('.')
     $path = $bits[1..($bits.Count-1)]
     # $lastKey = $bits[-1]
 
-    $val = $h[$k]
     $count = 0
     
     foreach($bit in $path) {
