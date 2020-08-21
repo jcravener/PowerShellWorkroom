@@ -613,7 +613,7 @@ function ConvertTo-JhcUtilJsonTable {
                 $h
             }
             else {
-                $h.Keys | ForEach-Object {  New-Object -TypeName psobject -Property @{ 'Name' = $_; 'Value' = $h[$k] } } 
+                $h.Keys | ForEach-Object {  New-Object -TypeName psobject -Property @{ 'Name' = $_; 'Value' = $h[$_] } } 
             }
         }   
     }
