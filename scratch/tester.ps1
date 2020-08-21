@@ -10,6 +10,26 @@ param (
     $h
 )
 
+function allKeysDigits {
+    param (
+        [Parameter(Mandatory)]
+        [System.Collections.Hashtable]
+        $h
+    )
+
+    foreach($k in $h.Keys) {
+        
+        if($k -match '^0\d') {
+            return $false
+        }
+        
+        if($k -notmatch '^\d+$') {
+            return $false  
+        }
+    }
+    return $true
+}
+
 function intKeyHashToLists {
     param (
         [Parameter(Mandatory)]
@@ -46,3 +66,4 @@ foreach ($k in $h.Keys) {
     }
 }
 $m
+
