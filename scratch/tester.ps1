@@ -57,23 +57,27 @@ function intKeyHashToLists {
     )
     
     if (isType -obj $obj -typeName 'Hashtable') {
-        if($obj -and (allKeysDigits -h $obj)) {
+        if ($obj -and (allKeysDigits -h $obj)) {
             #---do something
             #-- here you return a list based on a recursive call
-
+            $a = @()
+            foreach ($k in ($obj.Keys | Sort-Object) ) {
+                $a += intKeyHashToLists -obj $obj.item($k)
+            }
+            return $a
         }
         else {
             #---do something else
             #-- here you return a hash table based on a recursive call
             $h = @{}
-            foreach($k in $obj.Keys) {
+            foreach ($k in $obj.Keys) {
                 $h[$k] = intKeyHashToLists -obj $obj.item($k)
             }
             return $h
         }
     }
     elseif (isType -obj $obj -typeName 'Object[]') {
-        return ( $obj | ForEach-Object{ intKeyHashToLists -obj $_ } )
+        return ( $obj | ForEach-Object { intKeyHashToLists -obj $_ } )
     }
     else {
         return $obj
@@ -107,5 +111,6 @@ foreach ($k in $h.Keys) {
         $current = $current[$bit]
     }
 }
-$m
+# $m
+intKeyHashToLists -obj $m
 
