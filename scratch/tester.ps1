@@ -16,14 +16,14 @@ function isType {
         [System.Object]
         $obj,
         [Parameter(Mandatory)]
-        [ValidateSet('Hashtable','Object[]')]
+        [ValidateSet('Hashtable', 'Object[]')]
         [System.String]
         $typeName
     )
     
     $t = $obj.GetType()
 
-    if($t.Name -eq $typeName) {
+    if ($t.Name -eq $typeName) {
         return $true
     }
     return $false
@@ -52,9 +52,26 @@ function allKeysDigits {
 function intKeyHashToLists {
     param (
         [Parameter(Mandatory)]
-        [System.Collections.Hashtable]
-        $h
+        [System.Object]
+        $obj
     )
+    
+    if (isType -obj $obj -typeName 'Hashtable') {
+        if($obj -and (allKeysDigits -h $obj)) {
+            #---do something
+            #-- here you return a list based on a recursive call
+        }
+        else {
+            #---do something else
+            #-- here you return a hash table based on a recursive call
+        }
+    }
+    elseif (isType -obj $obj -typeName 'Object[]') {
+        #---do something else
+    }
+    else {
+        return $obj
+    }
 }
 
 $m = @{}
