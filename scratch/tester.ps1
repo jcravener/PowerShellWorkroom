@@ -11,6 +11,14 @@ param (
 
 # $h = @{'.person.pets[0].color.black.toy.foo.foo' = 'val1'; '.john.harold.cravener' = 'val2'; '.john.is.content' = 'val3' }
 
+function intKeyHashToLists {
+    param (
+        [Parameter(Mandatory)]
+        [System.Collections.Hashtable]
+        $h
+    )
+}
+
 $m = @{}
 foreach ($k in $h.Keys) {
     $current = $m
@@ -37,7 +45,5 @@ foreach ($k in $h.Keys) {
         }
         $current = $current[$bit]
     }
-    # $current[$lastKey] = $val
-    #$current[$lastKey]
 }
 $m
