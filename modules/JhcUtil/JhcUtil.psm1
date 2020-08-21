@@ -586,34 +586,38 @@ function ConvertTo-JhcUtilJsonTable {
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [System.Object[]]
-        $jsonObj
+        $jsonObj,
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $outputHashTable = $false
     )
 
     begin {
-        $rootNode = 'root'    
+        $rootNode = 'root'  
     }
     
     process {
         foreach ($o in $jsonObj) {
             $table = getNodes -job $o -path $rootNode
 
-            # $h = @{}
-            $a = @()
+            $h = @{}
             $pat = '^' + $rootNode
             
             foreach ($i in $table) {
                 foreach ($k in $i.keys) {
-                    # $h[$k -replace $pat, ''] = $i[$k]
-                    $a += New-Object -TypeName psobject -Property @{'Key' = $($k -replace $pat, ''); 'Value' = $i[$k]}
-                    # $h[$k -replace $pat, ''] = $i[$k]
+                    $h[$k -replace $pat, ''] = $i[$k]
                 }
             }
-            # $h
-            $a
-        }
+            
+            if ($outputHashTable) {
+                $h
+            }
+            else {
+                $h.Keys | ForEach-Object {  New-Object -TypeName psobject -Property @{ 'Name' = $_; 'Value' = $h[$k] } } 
+            }
+        }   
     }
-
-    end{}
+    end {}
 }
 
 #---parses stdout strings into a list of objects
