@@ -1,15 +1,14 @@
+#Requires -version 7
+#
+# POC scritp to unflattent a JSON table.  Take in a hashtable produced by ConvertTo-JhcUtilJsonTable from JhcUtil module
+# Most of the functionality is based on this code: https://github.com/simonw/json-flatten/blob/master/json_flatten.py
+#
 
 param (
     [Parameter(Mandatory)]
     [System.Collections.Hashtable]
     $h
 )
-
-# $a = '.person.pets[0].color.black.toy.foo' -split '\.'
-# $b = '.john.harold.cravener' -split '\.'
-# $z = '.john.is.content' -split '\.'
-
-# $h = @{'.person.pets[0].color.black.toy.foo.foo' = 'val1'; '.john.harold.cravener' = 'val2'; '.john.is.content' = 'val3' }
 
 function intKeyHashToLists {
     param (
