@@ -599,7 +599,8 @@ function intKeyHashToLists {
             foreach ($k in ($obj.Keys | Sort-Object) ) {
                 $a += intKeyHashToLists -obj $obj.item($k)
             }
-            return $a
+
+            return ,$a  #--- adding the comma forces this to retun an array even when it's a single element
         }
         else {
             $h = @{}
