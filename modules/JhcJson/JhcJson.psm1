@@ -116,7 +116,7 @@ function intKeyHashToLists {
     if (isType -obj $obj -typeName 'Hashtable') {
         if ($obj -and (allKeysDigits -h $obj)) {
             $a = @()
-            foreach ($k in ($obj.Keys | Sort-Object) ) {
+            foreach ($k in ( $obj.Keys | Sort-Object -Property @{e={[int]$_}} )) {
                 $a += intKeyHashToLists -obj $obj.item($k)
             }
 
@@ -124,7 +124,7 @@ function intKeyHashToLists {
         }
         else {
             $h = @{}
-            foreach ($k in $obj.Keys) {
+            foreach ($k in  $obj.Keys) {
                 $h[$k] = intKeyHashToLists -obj $obj.item($k)
             }
             return $h
