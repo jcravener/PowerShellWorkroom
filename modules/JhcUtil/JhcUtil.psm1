@@ -827,14 +827,10 @@ New-Alias -Name Convertfrom-JhcBase64String -Value Convertfrom-JhcUtilBase64Stri
 New-Alias -Name ConvertTo-JhcBase64String -Value ConvertTo-JhcUtilBase64String
 New-Alias -Name Get-JhcLongTermHistory -Value Get-JhcUtilLongTermHistory
 New-Alias -Name Get-JhcStockSp -Value Get-JhcUtilStockSp
-New-Alias -Name Import-JhcJson -Value Import-JhcUtilJson
 New-Alias -Name Invoke-JhcScriptBlock -Value Invoke-JhcUtilScriptBlock
 New-Alias -Name Search-JhcAadUserOrg -Value Search-JhcUtilAadUserOrg
 New-Alias -Name Show-JhcFileEncoding -Value Show-JhcUtilFileEncoding
 New-Alias -Name Unprotect-JhcSecureString -Value Unprotect-JhcUtilSecureString
 New-Alias -Name Update-JhcWindowTitle -Value Update-JhcUtilWindowTitle
-New-Alias -Name Test-JhcJsonFile -Value Test-JhcUtilJsonFile
-New-Alias -Name ConvertTo-JhcJsonTable -Value ConvertTo-JhcUtilJsonTable
-New-Alias -Name ConvertFrom-JhcJsonTable -Value ConvertFrom-JhcUtilJsonTable
 
 
