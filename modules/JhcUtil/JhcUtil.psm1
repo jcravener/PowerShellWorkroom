@@ -566,6 +566,8 @@ function isType {
     return $false
 }
 
+#---helper function for ConvertFrom-JhcUtilJsonTable
+#
 function allKeysDigits {
     param (
         [Parameter(Mandatory)]
@@ -586,6 +588,8 @@ function allKeysDigits {
     return $true
 }
 
+#---helper function for ConvertFrom-JhcUtilJsonTable
+#
 function intKeyHashToLists {
     param (
         [Parameter(Mandatory)]
