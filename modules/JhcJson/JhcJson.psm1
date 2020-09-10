@@ -204,6 +204,11 @@ function getNodes {
 
     if ($t.Name -eq 'PSCustomObject') {
         foreach ($m in Get-Member -InputObject $job -MemberType NoteProperty) {
+            
+            if($null -eq $job.($m.Name)) {
+                $job.($m.Name) = "`$null"
+            }
+
             getNodes -job $job.($m.Name) -path ($path + '.' + $m.Name)
         }
         
@@ -215,7 +220,14 @@ function getNodes {
         }
     }
     else {
-        $h[$path] = $job
+        
+        if($job -eq '$null'){
+            $h[$path] = $null            
+        }
+        else {
+            $h[$path] = $job
+        }
+        
         $h
     }
 }
