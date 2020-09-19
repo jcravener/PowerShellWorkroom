@@ -4,7 +4,7 @@
 param (
     [Parameter(Mandatory)]
     [string]
-    [ValidateSet('finalResults', 'scoreTable', 'golferScores')]
+    [ValidateSet('finalResults', 'scoreTable', 'golferScores', 'combinedLowGross')]
     $ReportType,
     [Parameter(Mandatory = $false)]
     [switch]
@@ -337,5 +337,17 @@ elseif ($ReportType -eq 'golferScores') {
         else {
             $report | Format-Table -GroupBy Name -Property Name, grossScore, equitableScore, equitableToPar, grossBirdies, pops, netScore
         }
+    }
+}
+elseif ($ReportType -eq 'combinedLowGross') {
+    
+    $sknReport = $scoreTable | Group-Object -Property Team  | ForEach-Object{$_.group | Group-Object -Property holeNumber | ForEach-Object{$_.group | Sort-Object -Property grossScore | Select-Object -First 2 | ForEach-Object{$o = $_; $skn = $o | Measure-Object -Property grossScore -Sum; $o | Select-Object -Property Team, holeNumber, par, @{n='combinedLowGross'; e={$skn.sum}}} | Select-Object -First 1 } }  | Group-Object -Property holeNumber | %{$_.group | Sort-Object -Property combinedLowGross}
+
+    
+    if($rawOutput) {
+        $sknReport
+    }
+    else {
+        $sknReport | Format-Table -GroupBy holeNumber
     }
 }
