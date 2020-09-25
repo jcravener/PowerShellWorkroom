@@ -403,9 +403,9 @@ function Search-GolferHandi {
         [Parameter(Mandatory = $false)]
         [System.String]
         $State = 'WA',
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $true)]
         [System.Object]
-        $Token = $false
+        $Token
     )
 
     begin {
@@ -429,6 +429,46 @@ function Search-GolferHandi {
 
     end{
         return ($response.golfers | Where-Object -Property club_name -Match $Club | Select-Object -Property @{n='GHINNumber';e={$_.ghin}}, @{n='LastName';e={$_.last_name}}, @{n='FirstName';e={$_.first_name}}, @{n='AssocName';e={$_.association_name}}, @{n='ClubName';e={$_.club_name}}, @{n='Index';e={[double]$_.handicap_index}}, @{n='LowHI';e={[double]$_.low_hi}}, @{n='RevDate';e={[datetime]$_.rev_date}} )
+    }
+}
+
+function Get-AllGolferHandis {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $ClubId = 16289,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $PerPage = 25,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $PageNumber = 1,
+        [Parameter(Mandatory = $true)]
+        [System.Object]
+        $Token
+    )
+    begin {
+        $hostname = 'api2.ghin.com'
+        $uriStem = "/api/v1/clubs/$($ClubId)/golfers.json?"
+        $queryString = "status=Active&per_page=$($PerPage)&sorting_criteria=last_name&order=asc&page=$($PageNumber)"
+
+        if($FirstName) {
+            $queryString += "&first_name=$($FirstName)"
+        }
+
+        $uri = 'http://' + $hostname + $uriStem + $queryString
+    }
+
+    process {        
+        $response = Invoke-RestMethod -Uri $uri -Headers $Token
+        if (-not $?) {
+            $Error[0]
+        }
+    }
+
+    end{
+        return ($response.golfers )
     }
 
 }
