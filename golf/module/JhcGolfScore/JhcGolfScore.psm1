@@ -191,7 +191,7 @@ function Get-GolferCourseHc {
             $rt = [golfer]::new($FirstName, $LastName, $GolferType, $Index)
             $rt.CourseName = $CourseName
             $rt.TeeLocation = $TeeLocation
-            if($Team) {
+            if ($Team) {
                 $rt.Team = $Team
             }
 
@@ -339,3 +339,97 @@ function Get-GolferGrossScore {
         return $rt        
     }
 }
+
+function Get-GolferGhinHandi {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $LastName,
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $GhinNumber,
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $returnToken = $false
+    )
+
+    begin {
+        
+        $hostname = 'api2.ghin.com'
+        $uriStem = '/api/v1/public/login.json?'
+        $queryString = "ghinNumber=$($GhinNumber)&lastName=$($LastName)&remember_me="
+
+        if($returnToken) {
+            $queryString += 'true'
+        }
+        else{
+            $queryString += 'false'
+        }
+
+        $uri = 'http://' + $hostname + $uriStem + $queryString
+    }
+
+    process {        
+        $response = Invoke-RestMethod -Uri $uri
+        if (-not $?) {
+            $Error[0]
+        }
+    }
+
+    end {
+        if ($returnToken) {
+            
+            return ( @{ 'authorization' = "Bearer $($response.golfers.NewUserToken)" } )
+        }
+        else {
+            return ( $response.golfers | Select-Object -Property GHINNumber, LastName, FirstName, AssocName, ClubName, Value, LowHI )
+        }
+    }
+}
+
+function Search-GolferHandi {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $LastName,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $FirstName,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $Club = 'Aldarra',
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $State = 'WA',
+        [Parameter(Mandatory = $false)]
+        [System.Object]
+        $Token = $false
+    )
+
+    begin {
+        $hostname = 'api2.ghin.com'
+        $uriStem = '/api/v1/golfers.json?'
+        $queryString = "status=Active&from_ghin=true&per_page=50&sorting_criteria=full_name&order=asc&page=1&state=$($State)&last_name=$($LastName)"
+
+        if($FirstName) {
+            $queryString += "&first_name=$($FirstName)"
+        }
+
+        $uri = 'http://' + $hostname + $uriStem + $queryString
+    }
+
+    process {        
+        $response = Invoke-RestMethod -Uri $uri -Headers $Token
+        if (-not $?) {
+            $Error[0]
+        }
+    }
+
+    end{
+        return $response.golfers | Where-Object -Property club_name -Match $Club | Select-Object -Property @{n='GHINNumber';e={$_.ghin}}, @{n='LastName';e={$_.last_name}}, @{n='FirstName';e={$_.first_name}}, @{n='AssocName';e={$_.association_name}}, @{n='ClubName';e={$_.club_name}}, @{n='Value';e={$_.handicap_index}}, @{n='LowHI';e={$_.low_hi}}  
+    }
+
+}
+
