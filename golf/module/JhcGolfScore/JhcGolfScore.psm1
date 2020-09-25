@@ -383,7 +383,7 @@ function Get-GolferGhinHandi {
             return ( @{ 'authorization' = "Bearer $($response.golfers.NewUserToken)" } )
         }
         else {
-            return ( $response.golfers | Select-Object -Property GHINNumber, LastName, FirstName, AssocName, ClubName, Value, LowHI )
+            return ( $response.golfers | Select-Object -Property GHINNumber, LastName, FirstName, AssocName, ClubName, @{n='Value';e={[double]$_.Value}}, @{n='LowHI';e={[double]$_.LowHI}}, @{n='RevDate';e={[datetime]$_.RevDate}} )
         }
     }
 }
@@ -428,7 +428,7 @@ function Search-GolferHandi {
     }
 
     end{
-        return $response.golfers | Where-Object -Property club_name -Match $Club | Select-Object -Property @{n='GHINNumber';e={$_.ghin}}, @{n='LastName';e={$_.last_name}}, @{n='FirstName';e={$_.first_name}}, @{n='AssocName';e={$_.association_name}}, @{n='ClubName';e={$_.club_name}}, @{n='Value';e={$_.handicap_index}}, @{n='LowHI';e={$_.low_hi}}  
+        return ($response.golfers | Where-Object -Property club_name -Match $Club | Select-Object -Property @{n='GHINNumber';e={$_.ghin}}, @{n='LastName';e={$_.last_name}}, @{n='FirstName';e={$_.first_name}}, @{n='AssocName';e={$_.association_name}}, @{n='ClubName';e={$_.club_name}}, @{n='Value';e={[double]$_.handicap_index}}, @{n='LowHI';e={[double]$_.low_hi}}, @{n='RevDate';e={[datetime]$_.rev_date}} )
     }
 
 }
