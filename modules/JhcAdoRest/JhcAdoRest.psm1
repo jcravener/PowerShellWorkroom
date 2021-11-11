@@ -19,7 +19,7 @@ function Invoke-JhcAdoRestPipelinePreviewRun {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
         
@@ -61,7 +61,7 @@ function Invoke-JhcAdoRestBuildDefinition {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
 
@@ -99,7 +99,7 @@ function Invoke-JhcAdoRestBuildList {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
         
@@ -136,7 +136,7 @@ function Invoke-JhcAdoRestPipeline {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
         
@@ -177,13 +177,13 @@ function Invoke-JhcAdoRestPipelineRuns {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/pipelines/' + $PipelineId
         
-        if($RunId){
+        if ($RunId) {
             $uri += '/runs/' + $RunId + '?api-version='
         }
         else {
@@ -225,7 +225,7 @@ function Invoke-JhcAdoRestBuild {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
         
@@ -266,11 +266,11 @@ function Invoke-JhcAdoRestGitPullRequest {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
         
-        $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/git//repositories/' + $RepositoryId + '/pullrequests/' +  $PullRequestId + '?api-version=' + $ApiVersion
+        $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/git//repositories/' + $RepositoryId + '/pullrequests/' + $PullRequestId + '?api-version=' + $ApiVersion
         
         $header = PrepAdoRestApiAuthHeader -SecurePat $pat
 
@@ -304,7 +304,7 @@ function Invoke-JhcAdoRestReleaseDefinition {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
                 
@@ -342,7 +342,7 @@ function Invoke-JhcAdoRestRelease {
 
     begin {
         
-        if(-not $Pat) {
+        if (-not $Pat) {
             throw "PAT was not found"
         }
                 
@@ -358,6 +358,27 @@ function Invoke-JhcAdoRestRelease {
         Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
     }
     end {}
+}
+
+function Select-JhcAdoRestReportBuildDefinition {
+    
+    param (
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline=$true)]
+        [System.Object[]]
+        $Value
+    )
+  
+    begin{
+        $p = 'id', 'createdDate', 'revision', @{n='authoredByuniqueName';e={$_.authoredBy.uniqueName}}, 'path', 'name', @{n='processType';e={ $_.process.type }}, @{n='yamlFilename';e={ $_.process.yamlFilename }}, @{n='repoName';e={$_.repository.name}}, @{n='repoBranch'; e={$_.repository.defaultBranch}}
+    }
+
+    process{
+        foreach($obj in $Value){
+            $obj | Select-Object -Property $p
+        }
+    }
+
+    end{}
 }
 
 function PrepAdoRestApiAuthHeader {
