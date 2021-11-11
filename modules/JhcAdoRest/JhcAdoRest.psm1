@@ -321,6 +321,45 @@ function Invoke-JhcAdoRestReleaseDefinition {
 
 }
 
+function Invoke-JhcAdoRestRelease {
+    param (
+        [Parameter(Position = 0, Mandatory = $false)]
+        [System.Security.SecureString]
+        $Pat = $JhcAdoRestPat,
+        [Parameter(Position = 1, Mandatory = $false)]
+        [System.String]
+        $ReleaseId,
+        [Parameter(Position = 2, Mandatory = $false)]
+        [System.String]
+        $Organization = $JhcAdoRestOrganization,
+        [Parameter(Position = 3, Mandatory = $false)]
+        [System.String]
+        $Project = $JhcAdoRestProject,
+        [Parameter(Position = 4, Mandatory = $false)]
+        [System.String]
+        $ApiVersion = '6.1-preview.8'
+    )
+
+    begin {
+        
+        if(-not $Pat) {
+            throw "PAT was not found"
+        }
+                
+        # GET https://vsrm.dev.azure.com/{organization}/{project}/_apis/release/releases/{releaseId}?api-version=6.1-preview.8
+
+        $uri = 'https://vsrm.dev.azure.com/' + $Organization + '/' + $Project + '/_apis/release/releases/' + $ReleaseId + '?api-version=' + $ApiVersion
+        
+        $header = PrepAdoRestApiAuthHeader -SecurePat $pat
+
+        $ct = 'application/json'
+    }
+    process {
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+    }
+    end {}
+}
+
 function PrepAdoRestApiAuthHeader {
 
     param (
