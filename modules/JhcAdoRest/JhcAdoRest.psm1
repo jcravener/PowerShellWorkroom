@@ -22,6 +22,12 @@ function Invoke-JhcAdoRestPipelinePreviewRun {
         if (-not $Pat) {
             throw "PAT was not found"
         }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
+        }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/pipelines/' + $PipelineId + '/preview?&api-version=' + $ApiVersion
         
@@ -64,6 +70,12 @@ function Invoke-JhcAdoRestBuildDefinition {
         if (-not $Pat) {
             throw "PAT was not found"
         }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
+        }
 
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/build/definitions/' + $PipelineId + '?api-version=' + $ApiVersion
                 
@@ -102,6 +114,12 @@ function Invoke-JhcAdoRestBuildList {
         if (-not $Pat) {
             throw "PAT was not found"
         }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
+        }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/build/builds?definitions=' + $PipelineId + '&api-version=' + $ApiVersion
         
@@ -138,6 +156,12 @@ function Invoke-JhcAdoRestPipeline {
         
         if (-not $Pat) {
             throw "PAT was not found"
+        }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/pipelines/' + $PipelineId + '?api-version=' + $ApiVersion
@@ -179,6 +203,12 @@ function Invoke-JhcAdoRestPipelineRuns {
         
         if (-not $Pat) {
             throw "PAT was not found"
+        }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/pipelines/' + $PipelineId
@@ -228,6 +258,13 @@ function Invoke-JhcAdoRestBuild {
         if (-not $Pat) {
             throw "PAT was not found"
         }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
+        }
+
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/build/builds/' + $BuildId + '?api-version=' + $ApiVersion
         
@@ -269,6 +306,12 @@ function Invoke-JhcAdoRestGitPullRequest {
         if (-not $Pat) {
             throw "PAT was not found"
         }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
+        }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/git//repositories/' + $RepositoryId + '/pullrequests/' + $PullRequestId + '?api-version=' + $ApiVersion
         
@@ -307,6 +350,12 @@ function Invoke-JhcAdoRestReleaseDefinition {
         if (-not $Pat) {
             throw "PAT was not found"
         }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
+        }
                 
         $uri = 'https://vsrm.dev.azure.com/' + $Organization + '/' + $Project + '/_apis/release/definitions/' + $DefinitionId + '?api-version=' + $ApiVersion
         
@@ -344,6 +393,12 @@ function Invoke-JhcAdoRestRelease {
         
         if (-not $Pat) {
             throw "PAT was not found"
+        }
+        if (-not $JhcAdoRestOrganization) {
+            throw "JhcAdoRestOrganization was not found"
+        }
+        if (-not $JhcAdoRestProject) {
+            throw "JhcAdoRestProject was not found"
         }
                 
         # GET https://vsrm.dev.azure.com/{organization}/{project}/_apis/release/releases/{releaseId}?api-version=6.1-preview.8
