@@ -424,7 +424,7 @@ function Select-JhcAdoRestBuildDefinition {
     )
   
     begin {
-        $p = 'id', 'createdDate', 'revision', @{n = 'authoredByuniqueName'; e = { $_.authoredBy.uniqueName } }, 'path', 'name', @{n = 'processType'; e = { $_.process.type } }, @{n = 'yamlFilename'; e = { $_.process.yamlFilename } }, @{n = 'repoName'; e = { $_.repository.name } }, @{n = 'repoBranch'; e = { $_.repository.defaultBranch } }
+        $p = 'id', 'createdDate', 'revision', @{n = 'authoredByuniqueName'; e = { $_.authoredBy.uniqueName } }, 'path', 'name', @{n = 'processType'; e = { $_.process.type } }, @{n = 'yamlFilename'; e = { $_.process.yamlFilename } }, @{n = 'repoName'; e = { $_.repository.name } }, @{n = 'repoBranch'; e = { $_.repository.defaultBranch } }, @{n='pool';e={$_.queue.name}}
     }
 
     process {
