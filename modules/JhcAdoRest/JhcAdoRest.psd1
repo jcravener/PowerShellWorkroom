@@ -30,7 +30,7 @@ CompanyName = 'jcravener@hotmail.com'
 Copyright = 'jcravener@hotmail.com'
 
 # Description of the functionality provided by this module
-Description = 'Collection of Cmdlets that run Azure Dev Ops Rest API calls'
+Description = 'Collection of Cmdlets that run Azure Dev Ops Rest API calls. Provides access to Build definitions and specific Builds; Release definitions and specific releases; Pipelines and pipeline runs; Full YAML Pipeline definition payloads; Pull requests.  The Select-* cmdlets transforms raw JSON response payloads into useful report objects.'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
