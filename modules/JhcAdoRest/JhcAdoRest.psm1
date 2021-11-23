@@ -441,9 +441,12 @@ function Select-JhcAdoRestReleaseDefinition {
         [Parameter(Position = 0, Mandatory, ValueFromPipeline = $true)]
         [System.Object[]]
         $Value,
-        [Parameter(Position = 0, Mandatory = $false)]
+        [Parameter(Position = 1, Mandatory = $false)]
         [switch]
-        $ExpandArtifacts = $false
+        $ExpandArtifacts = $false,
+        [Parameter(Position = 2, Mandatory = $false)]
+        [switch]
+        $ExpandPhases = $false
     )
   
     begin {
@@ -458,6 +461,19 @@ function Select-JhcAdoRestReleaseDefinition {
                 foreach ($artifact in $obj.artifacts) {
                     $obj | Select-Object -Property ($p + @{n = 'artifactType'; e = { $artifact.type } }, @{n = 'artifactAlias'; e = { $artifact.alias } }, @{n = 'artifactDefinitionId'; e = { $artifact.definitionReference.definition.id } })
                 }    
+            }
+            elseif ($ExpandPhases) {
+                foreach ($env in $obj.environments) {
+                                        
+                    $line = $obj | Select-Object -Property ($p + @{n = 'envId'; e = { $env.id } }, @{n = 'envName'; e = { $env.name } })
+
+                    foreach ($phase in $env.deployPhases ) {
+                        Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseId' -Value $phase.id -Force
+                        Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseName' -Value $phase.name -Force
+                        Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseType' -Value $phase.phaseType -Force
+                        $line
+                    }            
+                }
             }
             else {
                 $obj | Select-Object -Property $pp
