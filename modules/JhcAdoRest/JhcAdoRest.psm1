@@ -456,7 +456,7 @@ function Select-JhcAdoRestReleaseDefinition {
             
             if ($ExpandArtifacts) {
                 foreach ($artifact in $obj.artifacts) {
-                    $obj | Select-Object -Property ($p + @{n = 'artifactType'; e = { $artifact.type } }, @{n = 'artifactAlias'; e = { $artifact.alias } })
+                    $obj | Select-Object -Property ($p + @{n = 'artifactType'; e = { $artifact.type } }, @{n = 'artifactAlias'; e = { $artifact.alias } }, @{n = 'artifactDefinitionId'; e = { $artifact.definitionReference.definition.id } })
                 }    
             }
             else {
