@@ -418,42 +418,54 @@ function Invoke-JhcAdoRestRelease {
 function Select-JhcAdoRestBuildDefinition {
     
     param (
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline=$true)]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline = $true)]
         [System.Object[]]
         $Value
     )
   
-    begin{
-        $p = 'id', 'createdDate', 'revision', @{n='authoredByuniqueName';e={$_.authoredBy.uniqueName}}, 'path', 'name', @{n='processType';e={ $_.process.type }}, @{n='yamlFilename';e={ $_.process.yamlFilename }}, @{n='repoName';e={$_.repository.name}}, @{n='repoBranch'; e={$_.repository.defaultBranch}}
+    begin {
+        $p = 'id', 'createdDate', 'revision', @{n = 'authoredByuniqueName'; e = { $_.authoredBy.uniqueName } }, 'path', 'name', @{n = 'processType'; e = { $_.process.type } }, @{n = 'yamlFilename'; e = { $_.process.yamlFilename } }, @{n = 'repoName'; e = { $_.repository.name } }, @{n = 'repoBranch'; e = { $_.repository.defaultBranch } }
     }
 
-    process{
-        foreach($obj in $Value){
+    process {
+        foreach ($obj in $Value) {
             $obj | Select-Object -Property $p
         }
     }
 
-    end{}
+    end {}
 }
 function Select-JhcAdoRestReleaseDefinition {
     
     param (
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline=$true)]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline = $true)]
         [System.Object[]]
-        $Value
+        $Value,
+        [Parameter(Position = 0, Mandatory = $false)]
+        [switch]
+        $ExpandArtifacts = $false
     )
   
-    begin{
-        $p = 'id', 'createdOn', 'revision', @{n='createdByuniqueName';e={$_.createdBy.uniqueName}}, 'path', 'name', @{n='lastReleaseId';e={ $_.lastRelease.id }}, @{n='lastReleaseName';e={ $_.lastRelease.name }}, @{n='artifactsType';e={ $_.artifacts.type }}, @{n='artifactsAlias';e={ $_.artifacts.alias }}
+    begin {
+        $p = 'id', 'createdOn', 'revision', @{n = 'createdByuniqueName'; e = { $_.createdBy.uniqueName } }, 'path', 'name', @{n = 'lastReleaseId'; e = { $_.lastRelease.id } }, @{n = 'lastReleaseName'; e = { $_.lastRelease.name } }
+        $pp = $p + @{n = 'artifactsType'; e = { $_.artifacts.type } }, @{n = 'artifactsAlias'; e = { $_.artifacts.alias } }
     }
 
-    process{
-        foreach($obj in $Value){
-            $obj | Select-Object -Property $p
+    process {
+        foreach ($obj in $Value) {
+            
+            if ($ExpandArtifacts) {
+                foreach ($artifact in $obj.artifacts) {
+                    $obj | Select-Object -Property ($p + @{n = 'artifactType'; e = { $artifact.type } }, @{n = 'artifactAlias'; e = { $artifact.alias } })
+                }    
+            }
+            else {
+                $obj | Select-Object -Property $pp
+            }
         }
     }
 
-    end{}
+    end {}
 }
 
 function PrepAdoRestApiAuthHeader {
