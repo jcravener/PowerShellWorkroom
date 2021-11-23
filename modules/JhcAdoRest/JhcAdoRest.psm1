@@ -468,6 +468,60 @@ function Select-JhcAdoRestReleaseDefinition {
     end {}
 }
 
+function Select-JhcAdoRestRelease {
+    
+    param (
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline = $true)]
+        [System.Object[]]
+        $Value,
+        [Parameter(Position = 0, Mandatory = $false)]
+        [switch]
+        $ExpandSteps = $false
+    )
+  
+    begin {
+        $p = 'id', 'createdOn', 'name', 'status', 'description', 'reason', @{n = 'createdByuniqueName'; e = { $_.createdBy.uniqueName } }, @{n = 'definitionId'; e = { $_.releaseDefinition.id } }, @{n = 'definitionName'; e = { $_.releaseDefinition.name } }, @{n = 'definitionPath'; e = { $_.releaseDefinition.path } }
+    }
+
+    process {
+        foreach ($obj in $Value) {
+
+            if ($ExpandSteps) {
+                foreach ($env in $obj.environments) {
+                                        
+                    $line = $obj | Select-Object -Property ($p + @{n = 'envName'; e = { $env.name } }, @{n = 'envStatus'; e = { $env.status } })
+
+                    foreach ($phase in $env.deploySteps.releaseDeployPhases) {
+                        
+                        Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseId' -Value $phase.phaseId -Force
+                        Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseName' -Value $phase.name -Force
+                        Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseType' -Value $phase.phaseType -Force
+                        Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseStatus' -Value $phase.status -Force
+
+                        foreach ($job in $phase.deploymentJobs.job) {
+                            Add-Member -InputObject $line -MemberType NoteProperty -Name 'jobId' -Value $job.id -Force
+                            Add-Member -InputObject $line -MemberType NoteProperty -Name 'jobName' -Value $job.name -Force
+                            Add-Member -InputObject $line -MemberType NoteProperty -Name 'jobStatus' -Value $job.status -Force
+                            Add-Member -InputObject $line -MemberType NoteProperty -Name 'jobAgentName' -Value $job.agentName -Force
+                            
+                            $line
+                        }
+                    }
+
+                }
+            }
+            else {
+            
+                $obj | Select-Object -Property $p
+
+            }
+        }
+    }
+
+    end {}
+}
+
+
 function PrepAdoRestApiAuthHeader {
 
     param (
