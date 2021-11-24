@@ -424,7 +424,7 @@ function Select-JhcAdoRestBuildDefinition {
     )
   
     begin {
-        $p = 'id', 'createdDate', 'revision', @{n = 'authoredByuniqueName'; e = { $_.authoredBy.uniqueName } }, 'path', 'name', @{n = 'processType'; e = { $_.process.type } }, @{n = 'yamlFilename'; e = { $_.process.yamlFilename } }, @{n = 'repoName'; e = { $_.repository.name } }, @{n = 'repoBranch'; e = { $_.repository.defaultBranch } }, @{n='pool';e={$_.queue.name}}
+        $p = 'id', 'createdDate', 'revision', @{n = 'authoredByuniqueName'; e = { $_.authoredBy.uniqueName } }, 'path', 'name', @{n = 'processType'; e = { $_.process.type } }, @{n = 'yamlFilename'; e = { $_.process.yamlFilename } }, @{n = 'repoName'; e = { $_.repository.name } }, @{n = 'repoBranch'; e = { $_.repository.defaultBranch } }, @{n = 'pool'; e = { $_.queue.name } }, @{n='uiUrl'; e={ PrepAdoUiUrl -Id $_.id -Type 'BuildDefinition' }}
     }
 
     process {
@@ -450,7 +450,7 @@ function Select-JhcAdoRestReleaseDefinition {
     )
   
     begin {
-        $p = 'id', 'createdOn', 'revision', @{n = 'createdByuniqueName'; e = { $_.createdBy.uniqueName } }, 'path', 'name', @{n = 'lastReleaseId'; e = { $_.lastRelease.id } }, @{n = 'lastReleaseName'; e = { $_.lastRelease.name } }
+        $p = 'id', 'createdOn', 'revision', @{n = 'createdByuniqueName'; e = { $_.createdBy.uniqueName } }, 'path', 'name', @{n = 'lastReleaseId'; e = { $_.lastRelease.id } }, @{n = 'lastReleaseName'; e = { $_.lastRelease.name } }, @{n='uiUrl'; e={ PrepAdoUiUrl -Id $_.id -Type 'ReleaseDefinition' }}
         $pp = $p + @{n = 'artifactsType'; e = { $_.artifacts.type } }, @{n = 'artifactsAlias'; e = { $_.artifacts.alias } }
     }
 
@@ -496,7 +496,7 @@ function Select-JhcAdoRestRelease {
     )
   
     begin {
-        $p = 'id', 'createdOn', 'name', 'status', 'description', 'reason', @{n = 'createdByuniqueName'; e = { $_.createdBy.uniqueName } }, @{n = 'definitionId'; e = { $_.releaseDefinition.id } }, @{n = 'definitionName'; e = { $_.releaseDefinition.name } }, @{n = 'definitionPath'; e = { $_.releaseDefinition.path } }
+        $p = 'id', 'createdOn', 'name', 'status', 'description', 'reason', @{n = 'createdByuniqueName'; e = { $_.createdBy.uniqueName } }, @{n = 'definitionId'; e = { $_.releaseDefinition.id } }, @{n = 'definitionName'; e = { $_.releaseDefinition.name } }, @{n = 'definitionPath'; e = { $_.releaseDefinition.path } }, @{n='uiUrl'; e={ PrepAdoUiUrl -Id $_.id -Type 'Release' }}
     }
 
     process {
@@ -537,7 +537,6 @@ function Select-JhcAdoRestRelease {
     end {}
 }
 
-
 function PrepAdoRestApiAuthHeader {
 
     param (
@@ -565,4 +564,31 @@ function PrepAdoRestApiAuthHeader {
     $header = @{'Authorization' = "Basic $encodedCred" }
 
     return $header
+}
+
+function PrepAdoUiUrl {
+    param (
+        [Parameter(Position = 0, Mandatory)]
+        [ValidateSet('BuildDefinition', 'Build', 'ReleaseDefinition', 'Release')]
+        [System.String]
+        $Type,
+        [Parameter(Position = 1, Mandatory)]
+        [System.String]
+        $Id,
+        [Parameter(Position = 2, Mandatory = $false)]
+        [System.String]
+        $Organization = $JhcAdoRestOrganization,
+        [Parameter(Position = 3, Mandatory = $false)]
+        [System.String]
+        $Project = $JhcAdoRestProject
+    )
+
+    $typeMap = @{ 'BuildDefinition' = '_build?definitionId'; 
+        'Build'                     = '_build/results?buildId';
+        'ReleaseDefinition'         = '_release?_a=releases&view=all&definitionId';
+        'Release'                   = '_releaseProgress?_a=release-pipeline-progress&releaseId'
+    }
+    $uri = 'https://' + $Organization + '.visualstudio.com/' + $Project + '/' + $typeMap[$Type] + '=' + $Id
+
+    return $uri
 }
