@@ -84,7 +84,7 @@ function Invoke-JhcAdoRestBuildDefinition {
         $ct = 'application/json'
     }
     process {
-        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -ContentType $ct
     }
     end {}
 
@@ -128,7 +128,7 @@ function Invoke-JhcAdoRestBuildList {
         $ct = 'application/json'
     }
     process {
-        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -ContentType $ct
     }
     end {}
 
@@ -171,7 +171,7 @@ function Invoke-JhcAdoRestPipeline {
         $ct = 'application/json'
     }
     process {
-        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -ContentType $ct
     }
     end {}
 
@@ -227,7 +227,7 @@ function Invoke-JhcAdoRestPipelineRuns {
         $ct = 'application/json'
     }
     process {
-        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -ContentType $ct
     }
     end {}
 
@@ -273,7 +273,7 @@ function Invoke-JhcAdoRestBuild {
         $ct = 'application/json'
     }
     process {
-        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -ContentType $ct
     }
     end {}
 
@@ -320,7 +320,7 @@ function Invoke-JhcAdoRestGitPullRequest {
         $ct = 'application/json'
     }
     process {
-        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -ContentType $ct
     }
     end {}
 
@@ -364,7 +364,7 @@ function Invoke-JhcAdoRestReleaseDefinition {
         $ct = 'application/json'
     }
     process {
-        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -ContentType $ct
     }
     end {}
 
@@ -410,7 +410,7 @@ function Invoke-JhcAdoRestRelease {
         $ct = 'application/json'
     }
     process {
-        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -verbose -ContentType $ct
+        Invoke-RestMethod -Uri $uri -Headers $header -Method Get -ContentType $ct
     }
     end {}
 }
