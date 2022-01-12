@@ -12,7 +12,7 @@
 RootModule = 'JhcAdoRest.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.3'
+ModuleVersion = '1.1.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = 'jcravener@hotmail.com'
 Copyright = 'jcravener@hotmail.com'
 
 # Description of the functionality provided by this module
-Description = 'Collection of Cmdlets that run Azure Dev Ops Rest API calls. Provides access to Build definitions and specific Builds; Release definitions and specific releases; Pipelines and pipeline runs; Full YAML Pipeline definition payloads; Pull requests.  The Select-* cmdlets transforms raw JSON response payloads into useful report objects.'
+Description = 'Collection of Cmdlets that run Azure Dev Ops Rest API calls. Provides access to Build definitions and specific Builds; Release definitions and specific releases; Pipelines and pipeline runs; Full YAML Pipeline definition payloads; Agent Pools; Agent Pool Queues; Pull requests.  The Select-* cmdlets transforms raw JSON response payloads into useful report objects.'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -57,7 +57,7 @@ Description = 'Collection of Cmdlets that run Azure Dev Ops Rest API calls. Prov
 # RequiredAssemblies = @()
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = @('setenv.ps1')
+# ScriptsToProcess = @('setenv.ps1') # removing this in v1.1 becuse command-completion hangs when you try to use a cmdlet before this script runs.  Instead, v1.0.4 users should use Set-JhcAdoRestEnvironment cmdlet
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()
@@ -70,6 +70,8 @@ ScriptsToProcess = @('setenv.ps1')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
+    'Get-JhcAdoRestEnvironment',
+    'Set-JhcAdoRestEnvironment',
     'Invoke-JhcAdoRestPipelinePreviewRun',
     'Invoke-JhcAdoRestBuildDefinition',
     'Invoke-JhcAdoRestBuildList',
@@ -79,9 +81,13 @@ FunctionsToExport = @(
     'Invoke-JhcAdoRestGitPullRequest',
     'Invoke-JhcAdoRestReleaseDefinition',
     'Invoke-JhcAdoRestRelease',
+    'Select-JhcAdoRestAgentQueue',
+    'Select-JhcAdoRestAgentPool',
     'Select-JhcAdoRestBuildDefinition',
     'Select-JhcAdoRestReleaseDefinition',
-    'Select-JhcAdoRestRelease'
+    'Select-JhcAdoRestRelease',
+    'Invoke-JhcAdoRestAgentPool',
+    'Invoke-JhcAdoRestAgentQueue'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
