@@ -20,13 +20,13 @@ function Invoke-JhcAdoRestPipelinePreviewRun {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment."
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment."
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment."
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/pipelines/' + $PipelineId + '/preview?&api-version=' + $ApiVersion
@@ -68,13 +68,13 @@ function Invoke-JhcAdoRestBuildDefinition {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
 
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/build/definitions/' + $PipelineId + '?api-version=' + $ApiVersion
@@ -112,13 +112,13 @@ function Invoke-JhcAdoRestBuildList {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/build/builds?definitions=' + $PipelineId + '&api-version=' + $ApiVersion
@@ -155,13 +155,13 @@ function Invoke-JhcAdoRestPipeline {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/pipelines/' + $PipelineId + '?api-version=' + $ApiVersion
@@ -202,13 +202,13 @@ function Invoke-JhcAdoRestPipelineRuns {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/pipelines/' + $PipelineId
@@ -256,13 +256,13 @@ function Invoke-JhcAdoRestBuild {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
 
         
@@ -304,13 +304,13 @@ function Invoke-JhcAdoRestGitPullRequest {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/git//repositories/' + $RepositoryId + '/pullrequests/' + $PullRequestId + '?api-version=' + $ApiVersion
@@ -348,13 +348,13 @@ function Invoke-JhcAdoRestReleaseDefinition {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
                 
         $uri = 'https://vsrm.dev.azure.com/' + $Organization + '/' + $Project + '/_apis/release/definitions/' + $DefinitionId + '?api-version=' + $ApiVersion
@@ -392,13 +392,13 @@ function Invoke-JhcAdoRestRelease {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
                 
         # GET https://vsrm.dev.azure.com/{organization}/{project}/_apis/release/releases/{releaseId}?api-version=6.1-preview.8
@@ -437,13 +437,13 @@ function Invoke-JhcAdoRestAgentQueue {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
                 
         # GET https://dev.azure.com/{organization}/{project}/_apis/distributedtask/queues?queueIds={queueIds}&api-version=6.0-preview.1
@@ -482,13 +482,13 @@ function Invoke-JhcAdoRestAgentPool {
     begin {
         
         if (-not $Pat) {
-            throw "PAT was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "PAT was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestOrganization) {
-            throw "JhcAdoRestOrganization was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestOrganization was not found. Run Set-JhcAdoRestEnvironment"
         }
         if (-not $JhcAdoRestProject) {
-            throw "JhcAdoRestProject was not found. Run Invoke-JhcAdoRestBuildDefinition"
+            throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
         
         $uri = 'https://dev.azure.com/' + $Organization + '/_apis/distributedtask/pools?'
