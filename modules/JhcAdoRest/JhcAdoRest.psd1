@@ -12,7 +12,7 @@
 RootModule = 'JhcAdoRest.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.1'
+ModuleVersion = '1.1.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -84,6 +84,7 @@ FunctionsToExport = @(
     'Select-JhcAdoRestAgentQueue',
     'Select-JhcAdoRestAgentPool',
     'Select-JhcAdoRestBuildDefinition',
+    'Select-JhcAdoRestBuild',
     'Select-JhcAdoRestReleaseDefinition',
     'Select-JhcAdoRestRelease',
     'Invoke-JhcAdoRestAgentPool',

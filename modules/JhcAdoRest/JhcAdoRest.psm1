@@ -100,11 +100,14 @@ function Invoke-JhcAdoRestBuildList {
         $PipelineId,
         [Parameter(Position = 2, Mandatory = $false)]
         [System.String]
-        $Organization = $JhcAdoRestOrganization,
+        $Top = 1,
         [Parameter(Position = 3, Mandatory = $false)]
         [System.String]
-        $Project = $JhcAdoRestProject,
+        $Organization = $JhcAdoRestOrganization,
         [Parameter(Position = 4, Mandatory = $false)]
+        [System.String]
+        $Project = $JhcAdoRestProject,
+        [Parameter(Position = 5, Mandatory = $false)]
         [System.String]
         $ApiVersion = '6.1-preview.7'
     )
@@ -121,7 +124,7 @@ function Invoke-JhcAdoRestBuildList {
             throw "JhcAdoRestProject was not found. Run Set-JhcAdoRestEnvironment"
         }
         
-        $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/build/builds?definitions=' + $PipelineId + '&api-version=' + $ApiVersion
+        $uri = 'https://dev.azure.com/' + $Organization + '/' + $Project + '/_apis/build/builds?definitions=' + $PipelineId +  '&$top=' + $Top +  '&api-version=' + $ApiVersion
         
         $header = PrepAdoRestApiAuthHeader -SecurePat $pat
 
@@ -577,6 +580,26 @@ function Select-JhcAdoRestBuildDefinition {
 
     end {}
 }
+function Select-JhcAdoRestBuild {
+    
+    param (
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline = $true)]
+        [System.Object[]]
+        $Value
+    )
+  
+    begin {
+        $p = 'id', @{n='definitionId'; e = {$_.definition.id}}, 'buildNumber', 'status', 'result', 'startTime', @{n='requestedForName'; e = { $_.requestedFor.uniqueName }}
+    }
+
+    process {
+        foreach ($obj in $Value) {
+            $obj | Select-Object -Property $p
+        }
+    }
+
+    end {}
+}
 function Select-JhcAdoRestReleaseDefinition {
     
     param (
@@ -592,7 +615,7 @@ function Select-JhcAdoRestReleaseDefinition {
     )
   
     begin {
-        $p = 'id', 'createdOn', 'revision', @{n = 'createdByuniqueName'; e = { $_.createdBy.uniqueName } }, 'path', 'name', @{n = 'lastReleaseId'; e = { $_.lastRelease.id } }, @{n = 'lastReleaseName'; e = { $_.lastRelease.name } }, @{n = 'uiUrl'; e = { PrepAdoUiUrl -Id $_.id -Type 'ReleaseDefinition' } }
+        $p = 'id', 'createdOn', 'revision', @{n = 'createdByuniqueName'; e = { $_.createdBy.uniqueName } }, 'path', 'name', @{n = 'lastReleaseId'; e = { $_.lastRelease.id } }, @{n = 'lastReleaseName'; e = { $_.lastRelease.name } }, @{n = 'lastReleaseDate'; e = { $_.lastRelease.createdOn } }, @{n = 'uiUrl'; e = { PrepAdoUiUrl -Id $_.id -Type 'ReleaseDefinition' } }
         $pp = $p + @{n = 'artifactsType'; e = { $_.artifacts.type } }, @{n = 'artifactsAlias'; e = { $_.artifacts.alias } }
     }
 
@@ -614,6 +637,7 @@ function Select-JhcAdoRestReleaseDefinition {
                         Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseName' -Value $phase.name -Force
                         Add-Member -InputObject $line -MemberType NoteProperty -Name 'phaseType' -Value $phase.phaseType -Force
                         Add-Member -InputObject $line -MemberType NoteProperty -Name 'agentQueueId' -Value $phase.deploymentInput.queueId -Force
+                        Add-Member -InputObject $line -MemberType NoteProperty -Name 'agentSpec' -Value $phase.deploymentInput.agentSpecification.identifier -Force
                         $line
                     }            
                 }
