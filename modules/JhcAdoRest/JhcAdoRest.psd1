@@ -12,7 +12,7 @@
 RootModule = 'JhcAdoRest.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.2'
+ModuleVersion = '1.1.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = 'jcravener@hotmail.com'
 Copyright = 'jcravener@hotmail.com'
 
 # Description of the functionality provided by this module
-Description = 'Collection of Cmdlets that run Azure Dev Ops Rest API calls. Provides access to Build definitions and specific Builds; Release definitions and specific releases; Pipelines and pipeline runs; Full YAML Pipeline definition payloads; Agent Pools; Agent Pool Queues; Pull requests.  The Select-* cmdlets transforms raw JSON response payloads into useful report objects.'
+Description = 'Collection of Cmdlets that run Azure Dev Ops Rest API calls. Provides access to Build definitions, specific Builds and Build Timelines.; Release definitions and specific releases; Pipelines and pipeline runs; Full YAML Pipeline definition payloads; Agent Pools; Agent Pool Queues; Pull requests.  The Select-* cmdlets transforms raw JSON response payloads into useful report objects.'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -78,6 +78,7 @@ FunctionsToExport = @(
     'Invoke-JhcAdoRestPipeline',
     'Invoke-JhcAdoRestPipelineRuns',
     'Invoke-JhcAdoRestBuild',
+    'Invoke-JhcAdoRestBuildTimeline',
     'Invoke-JhcAdoRestGitPullRequest',
     'Invoke-JhcAdoRestReleaseDefinition',
     'Invoke-JhcAdoRestRelease',
