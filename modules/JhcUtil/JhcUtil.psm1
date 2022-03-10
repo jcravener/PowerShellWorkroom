@@ -1,6 +1,6 @@
 #Requires -Version 3
 #
-# Collection a variety of useful tools.
+# Collection of a variety of useful tools.
 
 #---invoke a scriptblock that has been stored in a clixml file 
 #
@@ -32,9 +32,7 @@ function Invoke-JhcUtilScriptBlock {
 function Update-JhcUtilWindowTitle {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)]
-        [System.String]
-        $Title
+        $Title = "$(Split-Path -Path $PWD.Path -Leaf)"
     )
 
     $Host.UI.RawUI.WindowTitle = $Title
